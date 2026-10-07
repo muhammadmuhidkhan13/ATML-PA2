@@ -10,7 +10,12 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from common.data import load_yaml, read_jsonl, repo_path
+from common.data import (
+    filter_overlength_preference_rows,
+    load_yaml,
+    read_jsonl,
+    repo_path,
+)
 from common.generation import batch_generate
 from common.logging_utils import set_seed
 from common.metrics import (
@@ -32,6 +37,7 @@ STRATA = [
 
 def clear_model_memory() -> None:
     gc.collect()
+
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
@@ -661,6 +667,29 @@ def run_length_analysis(
         config_path
     )
 
+    for argument_name, argument_value in (
+        (
+            "max_train_examples",
+            max_train_examples,
+        ),
+        (
+            "eval_max_examples",
+            eval_max_examples,
+        ),
+        (
+            "word_limit_max_examples",
+            word_limit_max_examples,
+        ),
+    ):
+        if (
+            argument_value is not None
+            and int(argument_value) < 1
+        ):
+            raise ValueError(
+                f"{argument_name} must be "
+                "at least 1 when provided."
+            )
+
     standard_path = repo_path(
         standard_adapter
         or cfg["standard_output"]
@@ -719,16 +748,80 @@ def run_length_analysis(
             f"not found at {balanced_path}."
         )
 
-    stratified_rows = read_jsonl(
+    raw_stratified_rows = read_jsonl(
         cfg["paths"][
             "dpo_length_eval"
         ]
     )
 
-    word_rows = read_jsonl(
+    raw_word_rows = read_jsonl(
         cfg["paths"][
             "word_limit_prompts"
         ]
+    )
+
+    word_rows = list(
+        raw_word_rows
+    )
+
+    tokenizer = load_tokenizer(
+        cfg["base_model"]
+    )
+
+    max_sequence_length = int(
+        cfg["max_sequence_length"]
+    )
+
+    (
+        eligible_stratified_rows,
+        excluded_stratified_rows,
+    ) = filter_overlength_preference_rows(
+        raw_stratified_rows,
+        tokenizer,
+        max_sequence_length,
+    )
+
+    for excluded in excluded_stratified_rows:
+        source = raw_stratified_rows[
+            int(
+                excluded[
+                    "dataset_index"
+                ]
+            )
+        ]
+
+        excluded[
+            "length_stratum"
+        ] = source.get(
+            "length_stratum"
+        )
+        excluded[
+            "chosen_tokens"
+        ] = source.get(
+            "chosen_tokens"
+        )
+        excluded[
+            "rejected_tokens"
+        ] = source.get(
+            "rejected_tokens"
+        )
+        excluded[
+            "length_difference"
+        ] = source.get(
+            "length_difference"
+        )
+
+    if not eligible_stratified_rows:
+        raise ValueError(
+            "No length-stratified evaluation "
+            "examples remain after filtering "
+            "prompts that do not fit inside "
+            f"max_sequence_length="
+            f"{max_sequence_length}."
+        )
+
+    stratified_rows = (
+        eligible_stratified_rows
     )
 
     if eval_max_examples is not None:
@@ -752,8 +845,178 @@ def run_length_analysis(
             ]
         )
 
-    tokenizer = load_tokenizer(
-        cfg["base_model"]
+    print(
+        "Length evaluation preprocessing: "
+        f"raw={len(raw_stratified_rows)}, "
+        f"eligible="
+        f"{len(eligible_stratified_rows)}, "
+        f"excluded="
+        f"{len(excluded_stratified_rows)}, "
+        f"selected={len(stratified_rows)}, "
+        f"max_sequence_length="
+        f"{max_sequence_length}"
+    )
+
+    preprocessing_manifest_path = (
+        results_dir
+        / "length_preprocessing_manifest.json"
+    )
+
+    preprocessing_manifest = {
+        "experiment":
+            "task1_dpo_length_confounding",
+
+        "dataset":
+            str(
+                cfg["paths"][
+                    "dpo_length_eval"
+                ]
+            ),
+
+        "rule":
+            (
+                "Preserve the complete prompt. "
+                "Exclude an example when the "
+                "prompt plus generation prefix "
+                "alone has at least "
+                "max_sequence_length tokens. "
+                "For retained preference pairs, "
+                "truncate chosen and rejected "
+                "responses from the right and "
+                "preserve EOS."
+            ),
+
+        "filter_order":
+            (
+                "filter_overlength_before_"
+                "eval_max_examples"
+            ),
+
+        "max_sequence_length":
+            max_sequence_length,
+
+        "raw_num_stratified_rows":
+            len(raw_stratified_rows),
+
+        "eligible_num_stratified_rows":
+            len(
+                eligible_stratified_rows
+            ),
+
+        "excluded_num_stratified_rows":
+            len(
+                excluded_stratified_rows
+            ),
+
+        "requested_eval_max_examples":
+            (
+                None
+                if eval_max_examples is None
+                else int(
+                    eval_max_examples
+                )
+            ),
+
+        "selected_num_stratified_rows":
+            len(stratified_rows),
+
+        "raw_stratum_counts": {
+            stratum: sum(
+                row.get(
+                    "length_stratum"
+                )
+                == stratum
+                for row
+                in raw_stratified_rows
+            )
+            for stratum in STRATA
+        },
+
+        "eligible_stratum_counts": {
+            stratum: sum(
+                row.get(
+                    "length_stratum"
+                )
+                == stratum
+                for row
+                in eligible_stratified_rows
+            )
+            for stratum in STRATA
+        },
+
+        "selected_stratum_counts": {
+            stratum: sum(
+                row.get(
+                    "length_stratum"
+                )
+                == stratum
+                for row
+                in stratified_rows
+            )
+            for stratum in STRATA
+        },
+
+        "excluded_stratum_counts": {
+            stratum: sum(
+                row.get(
+                    "length_stratum"
+                )
+                == stratum
+                for row
+                in excluded_stratified_rows
+            )
+            for stratum in STRATA
+        },
+
+        "selected_examples": [
+            {
+                "selected_index":
+                    selected_index,
+
+                "prompt_id":
+                    row.get(
+                        "prompt_id"
+                    ),
+
+                "source_index":
+                    row.get(
+                        "source_index"
+                    ),
+
+                "length_stratum":
+                    row.get(
+                        "length_stratum"
+                    ),
+            }
+            for selected_index, row
+            in enumerate(
+                stratified_rows
+            )
+        ],
+
+        "excluded_examples":
+            excluded_stratified_rows,
+
+        "raw_num_word_limit_prompts":
+            len(raw_word_rows),
+
+        "selected_num_word_limit_prompts":
+            len(word_rows),
+
+        "requested_word_limit_max_examples":
+            (
+                None
+                if word_limit_max_examples
+                is None
+                else int(
+                    word_limit_max_examples
+                )
+            ),
+    }
+
+    write_json(
+        preprocessing_manifest_path,
+        preprocessing_manifest,
     )
 
     standard = evaluate_policy(
@@ -795,10 +1058,67 @@ def run_length_analysis(
             config_path,
 
         "seed":
-            int(cfg["seed"]),
+            int(
+                cfg["seed"]
+            ),
 
         "num_stratified_rows":
             len(stratified_rows),
+
+        "raw_num_stratified_rows":
+            len(raw_stratified_rows),
+
+        "eligible_num_stratified_rows":
+            len(
+                eligible_stratified_rows
+            ),
+
+        "excluded_overlength_rows":
+            len(
+                excluded_stratified_rows
+            ),
+
+        "requested_eval_max_examples":
+            (
+                None
+                if eval_max_examples is None
+                else int(
+                    eval_max_examples
+                )
+            ),
+
+        "raw_stratum_counts":
+            preprocessing_manifest[
+                "raw_stratum_counts"
+            ],
+
+        "eligible_stratum_counts":
+            preprocessing_manifest[
+                "eligible_stratum_counts"
+            ],
+
+        "selected_stratum_counts":
+            preprocessing_manifest[
+                "selected_stratum_counts"
+            ],
+
+        "excluded_stratum_counts":
+            preprocessing_manifest[
+                "excluded_stratum_counts"
+            ],
+
+        "preprocessing_rule":
+            (
+                "preserve_prompt_"
+                "filter_prompt_overflow"
+            ),
+
+        "preprocessing_manifest":
+            str(
+                preprocessing_manifest_path.relative_to(
+                    repo_path(".")
+                )
+            ),
 
         "num_word_limit_prompts":
             len(word_rows),
@@ -901,7 +1221,8 @@ def run_length_analysis(
 
             print(
                 f"  {stratum}: "
-                f"n={metrics['num_pairs']}, "
+                f"n="
+                f"{metrics['num_pairs']}, "
                 "accuracy="
                 f"{metrics['preference_accuracy']}"
             )
