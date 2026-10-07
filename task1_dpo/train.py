@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from common.data import (
     encode_prompt_response,
+    filter_overlength_preference_rows,
     load_yaml,
     pad_batch,
     preference_responses,
@@ -111,13 +112,20 @@ def prepare_dpo_run(
         or cfg["paths"]["dpo_standard_train"]
     )
 
-    rows = read_jsonl(selected_dataset)
+    raw_rows = read_jsonl(selected_dataset)
 
-    if max_examples is not None:
-        rows = rows[: int(max_examples)]
+    if not raw_rows:
+        raise ValueError(
+            "The selected DPO training dataset is empty."
+        )
 
-    if not rows:
-        raise ValueError("The selected DPO training dataset is empty.")
+    if (
+        max_examples is not None
+        and int(max_examples) < 1
+    ):
+        raise ValueError(
+            "max_examples must be at least 1 when provided."
+        )
 
     selected_beta = float(
         cfg["beta"]
@@ -126,9 +134,50 @@ def prepare_dpo_run(
     )
 
     if selected_beta <= 0:
-        raise ValueError("DPO beta must be positive.")
+        raise ValueError(
+            "DPO beta must be positive."
+        )
 
-    tokenizer = load_tokenizer(cfg["base_model"])
+    tokenizer = load_tokenizer(
+        cfg["base_model"]
+    )
+
+    max_sequence_length = int(
+        cfg["max_sequence_length"]
+    )
+
+    eligible_rows, excluded_rows = (
+        filter_overlength_preference_rows(
+            raw_rows,
+            tokenizer,
+            max_sequence_length,
+        )
+    )
+
+    if not eligible_rows:
+        raise ValueError(
+            "No DPO examples remain after filtering "
+            "prompts that do not fit inside "
+            f"max_sequence_length={max_sequence_length}."
+        )
+
+    # Filtering happens before max_examples so a short
+    # ablation still receives the requested number of
+    # valid examples.
+    rows = eligible_rows
+
+    if max_examples is not None:
+        rows = rows[: int(max_examples)]
+
+    print(
+        "DPO preprocessing: "
+        f"raw={len(raw_rows)}, "
+        f"eligible={len(eligible_rows)}, "
+        f"excluded={len(excluded_rows)}, "
+        f"selected={len(rows)}, "
+        f"max_sequence_length={max_sequence_length}"
+    )
+
     model = load_policy(
         cfg,
         trainable=True,
@@ -137,15 +186,19 @@ def prepare_dpo_run(
 
     loader = DataLoader(
         rows,
-        batch_size=int(cfg["batch_size"]),
+        batch_size=int(
+            cfg["batch_size"]
+        ),
         shuffle=True,
         collate_fn=make_collate(
             tokenizer,
-            int(cfg["max_sequence_length"]),
+            max_sequence_length,
         ),
     )
 
-    parameters = trainable_parameters(model)
+    parameters = trainable_parameters(
+        model
+    )
 
     if not parameters:
         raise RuntimeError(
@@ -154,15 +207,30 @@ def prepare_dpo_run(
 
     optimizer = AdamW(
         parameters,
-        lr=float(cfg["learning_rate"]),
+        lr=float(
+            cfg["learning_rate"]
+        ),
         weight_decay=float(
-            cfg.get("weight_decay", 0.0)
+            cfg.get(
+                "weight_decay",
+                0.0,
+            )
         ),
     )
 
     return {
         "cfg": cfg,
         "rows": rows,
+        "raw_num_rows": len(raw_rows),
+        "eligible_num_rows": len(
+            eligible_rows
+        ),
+        "excluded_rows": excluded_rows,
+        "requested_max_examples": (
+            None
+            if max_examples is None
+            else int(max_examples)
+        ),
         "dataset_path": selected_dataset,
         "tokenizer": tokenizer,
         "model": model,
@@ -197,14 +265,34 @@ def run_training(
     optimizer = bundle["optimizer"]
     selected_beta = bundle["beta"]
 
+    raw_num_rows = bundle[
+        "raw_num_rows"
+    ]
+    eligible_num_rows = bundle[
+        "eligible_num_rows"
+    ]
+    excluded_rows = bundle[
+        "excluded_rows"
+    ]
+    requested_max_examples = bundle[
+        "requested_max_examples"
+    ]
+
     output_spec = (
         output_path
         or cfg["standard_output"]
     )
-    output = repo_path(output_spec)
+    output = repo_path(
+        output_spec
+    )
 
-    results_dir = repo_path(cfg["results_dir"])
-    results_dir.mkdir(parents=True, exist_ok=True)
+    results_dir = repo_path(
+        cfg["results_dir"]
+    )
+    results_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     log_path = (
         results_dir
@@ -214,11 +302,79 @@ def run_training(
         results_dir
         / f"{run_name}_train_summary.json"
     )
+    filter_manifest_path = (
+        results_dir
+        / f"{run_name}_preprocessing_manifest.json"
+    )
 
-    log_path.write_text("", encoding="utf-8")
+    preprocessing_manifest = {
+        "run_name": run_name,
+        "dataset": str(
+            bundle["dataset_path"]
+        ),
+        "rule": (
+            "Preserve the complete prompt. Exclude an "
+            "example when the prompt plus generation "
+            "prefix alone has at least max_sequence_length "
+            "tokens. For retained examples, truncate "
+            "chosen and rejected responses from the right "
+            "and preserve EOS."
+        ),
+        "filter_order": (
+            "filter_overlength_before_max_examples"
+        ),
+        "max_sequence_length": int(
+            cfg["max_sequence_length"]
+        ),
+        "raw_num_rows": raw_num_rows,
+        "eligible_num_rows": (
+            eligible_num_rows
+        ),
+        "excluded_num_rows": len(
+            excluded_rows
+        ),
+        "requested_max_examples": (
+            requested_max_examples
+        ),
+        "selected_num_rows": len(rows),
+        "selected_examples": [
+            {
+                "selected_index": (
+                    selected_index
+                ),
+                "prompt_id": row.get(
+                    "prompt_id"
+                ),
+                "source_index": row.get(
+                    "source_index"
+                ),
+            }
+            for selected_index, row
+            in enumerate(rows)
+        ],
+        "excluded_examples": (
+            excluded_rows
+        ),
+    }
 
-    device = next(model.parameters()).device
-    epochs = int(cfg["epochs"])
+    save_json(
+        filter_manifest_path,
+        preprocessing_manifest,
+    )
+
+    # Clear an old log with the same run name.
+    log_path.write_text(
+        "",
+        encoding="utf-8",
+    )
+
+    device = next(
+        model.parameters()
+    ).device
+
+    epochs = int(
+        cfg["epochs"]
+    )
     accumulation_steps = int(
         cfg["grad_accum_steps"]
     )
@@ -236,10 +392,15 @@ def run_training(
     )
 
     if torch.cuda.is_available():
-        torch.cuda.reset_peak_memory_stats(device)
+        torch.cuda.reset_peak_memory_stats(
+            device
+        )
 
     timer = wall_timer()
-    optimizer.zero_grad(set_to_none=True)
+
+    optimizer.zero_grad(
+        set_to_none=True
+    )
 
     metric_names = (
         "loss",
@@ -252,6 +413,7 @@ def run_training(
         name: 0.0
         for name in metric_names
     }
+
     run_examples = 0
     examples_seen = 0
     update_step = 0
@@ -278,9 +440,13 @@ def run_training(
             )
 
             batch_size = int(
-                chosen_batch["input_ids"].shape[0]
+                chosen_batch[
+                    "input_ids"
+                ].shape[0]
             )
 
+            # The same base model is used as the frozen
+            # reference by temporarily disabling LoRA.
             with torch.no_grad():
                 with reference_mode(model):
                     ref_chosen_logp = (
@@ -296,6 +462,7 @@ def run_training(
                         )
                     )
 
+            # These passes use the trainable LoRA policy.
             policy_chosen_logp = (
                 response_sequence_logps(
                     model,
@@ -317,6 +484,10 @@ def run_training(
                 selected_beta,
             )
 
+            # The final accumulation window may contain
+            # fewer microbatches, so calculate its actual
+            # size instead of always dividing by the
+            # configured accumulation_steps.
             window_start = (
                 batch_index
                 // accumulation_steps
@@ -357,8 +528,14 @@ def run_training(
                     batch_metrics[name]
                     * batch_size
                 )
-                window_sums[name] += weighted_value
-                run_sums[name] += weighted_value
+
+                window_sums[
+                    name
+                ] += weighted_value
+
+                run_sums[
+                    name
+                ] += weighted_value
 
             window_examples += batch_size
             window_microbatches += 1
@@ -381,7 +558,9 @@ def run_training(
             )
 
             optimizer.step()
-            optimizer.zero_grad(set_to_none=True)
+            optimizer.zero_grad(
+                set_to_none=True
+            )
             update_step += 1
 
             record = {
@@ -391,14 +570,18 @@ def run_training(
                 "microbatches": (
                     window_microbatches
                 ),
-                "examples_seen": examples_seen,
+                "examples_seen": (
+                    examples_seen
+                ),
                 "beta": selected_beta,
                 "loss": (
                     window_sums["loss"]
                     / window_examples
                 ),
                 "logit_mean": (
-                    window_sums["logit_mean"]
+                    window_sums[
+                        "logit_mean"
+                    ]
                     / window_examples
                 ),
                 "policy_margin_mean": (
@@ -421,7 +604,10 @@ def run_training(
                 ),
             }
 
-            append_jsonl(log_path, record)
+            append_jsonl(
+                log_path,
+                record,
+            )
 
             print(
                 f"[{run_name}] "
@@ -445,15 +631,25 @@ def run_training(
         parents=True,
         exist_ok=True,
     )
-    model.save_pretrained(output)
-    tokenizer.save_pretrained(output)
 
-    elapsed_seconds = float(timer())
+    model.save_pretrained(
+        output
+    )
+    tokenizer.save_pretrained(
+        output
+    )
+
+    elapsed_seconds = float(
+        timer()
+    )
 
     peak_vram_gib = None
+
     if torch.cuda.is_available():
         peak_vram_gib = float(
-            torch.cuda.max_memory_allocated(device)
+            torch.cuda.max_memory_allocated(
+                device
+            )
             / (1024 ** 3)
         )
 
@@ -463,10 +659,40 @@ def run_training(
         "dataset": str(
             bundle["dataset_path"]
         ),
-        "adapter_output": str(output_spec),
-        "seed": int(cfg["seed"]),
+        "adapter_output": str(
+            output_spec
+        ),
+        "seed": int(
+            cfg["seed"]
+        ),
+
+        # Preprocessing information
         "num_train_rows": len(rows),
-        "examples_processed": run_examples,
+        "raw_num_train_rows": (
+            raw_num_rows
+        ),
+        "eligible_num_train_rows": (
+            eligible_num_rows
+        ),
+        "excluded_overlength_rows": len(
+            excluded_rows
+        ),
+        "requested_max_examples": (
+            requested_max_examples
+        ),
+        "preprocessing_rule": (
+            "preserve_prompt_filter_prompt_overflow"
+        ),
+        "preprocessing_manifest": str(
+            filter_manifest_path.relative_to(
+                repo_path(".")
+            )
+        ),
+
+        # Training information
+        "examples_processed": (
+            run_examples
+        ),
         "epochs": epochs,
         "batch_size": int(
             cfg["batch_size"]
@@ -482,18 +708,29 @@ def run_training(
             cfg["learning_rate"]
         ),
         "weight_decay": float(
-            cfg.get("weight_decay", 0.0)
+            cfg.get(
+                "weight_decay",
+                0.0,
+            )
         ),
         "beta": selected_beta,
         "max_sequence_length": int(
             cfg["max_sequence_length"]
         ),
-        "max_grad_norm": max_grad_norm,
-        "optimizer_updates": update_step,
-        "total_parameters": total_parameters,
+        "max_grad_norm": (
+            max_grad_norm
+        ),
+        "optimizer_updates": (
+            update_step
+        ),
+        "total_parameters": (
+            total_parameters
+        ),
         "trainable_parameters": (
             trainable_count
         ),
+
+        # Aggregate metrics
         "mean_train_loss": (
             run_sums["loss"]
             / run_examples
@@ -514,8 +751,14 @@ def run_training(
             ]
             / run_examples
         ),
-        "wall_clock_seconds": elapsed_seconds,
-        "peak_vram_gib": peak_vram_gib,
+
+        # Resource information
+        "wall_clock_seconds": (
+            elapsed_seconds
+        ),
+        "peak_vram_gib": (
+            peak_vram_gib
+        ),
         "train_log": str(
             log_path.relative_to(
                 repo_path(".")
@@ -523,7 +766,10 @@ def run_training(
         ),
     }
 
-    save_json(summary_path, summary)
+    save_json(
+        summary_path,
+        summary,
+    )
 
     print(
         f"Saved adapter to {output}"
@@ -532,8 +778,12 @@ def run_training(
         f"Saved training log to {log_path}"
     )
     print(
-        f"Saved training summary to "
+        "Saved training summary to "
         f"{summary_path}"
+    )
+    print(
+        "Saved preprocessing manifest to "
+        f"{filter_manifest_path}"
     )
 
     return summary
@@ -541,6 +791,7 @@ def run_training(
 
 def main():
     parser = argparse.ArgumentParser()
+
     parser.add_argument(
         "--config",
         default="configs/dpo.yaml",
@@ -549,8 +800,12 @@ def main():
         "--run-name",
         default="standard",
     )
-    parser.add_argument("--dataset")
-    parser.add_argument("--output")
+    parser.add_argument(
+        "--dataset"
+    )
+    parser.add_argument(
+        "--output"
+    )
     parser.add_argument(
         "--beta",
         type=float,
@@ -559,6 +814,7 @@ def main():
         "--max-examples",
         type=int,
     )
+
     args = parser.parse_args()
 
     run_training(
