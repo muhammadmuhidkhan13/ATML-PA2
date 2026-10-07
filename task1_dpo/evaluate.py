@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
 from common.data import (
+    filter_overlength_preference_rows,
     load_yaml,
     preference_responses,
     prompt_messages_from_preference,
@@ -74,20 +75,60 @@ def load_evaluation_bundle(
 ):
     cfg = load_yaml(config_path)
 
-    rows = read_jsonl(
+    selected_dataset = (
         dataset_path
         or cfg["paths"]["dpo_standard_eval"]
     )
 
-    if max_examples is not None:
-        rows = rows[: int(max_examples)]
+    raw_rows = read_jsonl(selected_dataset)
 
-    if not rows:
+    if not raw_rows:
         raise ValueError(
             "The selected DPO evaluation dataset is empty."
         )
 
+    if (
+        max_examples is not None
+        and int(max_examples) < 1
+    ):
+        raise ValueError(
+            "max_examples must be at least 1 when provided."
+        )
+
     tokenizer = load_tokenizer(cfg["base_model"])
+
+    max_sequence_length = int(
+        cfg["max_sequence_length"]
+    )
+
+    eligible_rows, excluded_rows = (
+        filter_overlength_preference_rows(
+            raw_rows,
+            tokenizer,
+            max_sequence_length,
+        )
+    )
+
+    if not eligible_rows:
+        raise ValueError(
+            "No DPO evaluation examples remain after filtering "
+            "prompts that do not fit inside "
+            f"max_sequence_length={max_sequence_length}."
+        )
+
+    rows = eligible_rows
+
+    if max_examples is not None:
+        rows = rows[: int(max_examples)]
+
+    print(
+        "DPO evaluation preprocessing: "
+        f"raw={len(raw_rows)}, "
+        f"eligible={len(eligible_rows)}, "
+        f"excluded={len(excluded_rows)}, "
+        f"selected={len(rows)}, "
+        f"max_sequence_length={max_sequence_length}"
+    )
 
     policy = load_policy(
         cfg,
@@ -98,6 +139,15 @@ def load_evaluation_bundle(
     return {
         "cfg": cfg,
         "rows": rows,
+        "raw_num_rows": len(raw_rows),
+        "eligible_num_rows": len(eligible_rows),
+        "excluded_rows": excluded_rows,
+        "requested_max_examples": (
+            None
+            if max_examples is None
+            else int(max_examples)
+        ),
+        "dataset_path": selected_dataset,
         "tokenizer": tokenizer,
         "policy": policy,
     }
@@ -749,6 +799,12 @@ def run_evaluation(
     rows = bundle["rows"]
     tokenizer = bundle["tokenizer"]
     policy = bundle["policy"]
+    raw_num_rows = bundle["raw_num_rows"]
+    eligible_num_rows = bundle["eligible_num_rows"]
+    excluded_rows = bundle["excluded_rows"]
+    requested_max_examples = bundle[
+        "requested_max_examples"
+    ]
 
     set_seed(int(cfg["seed"]))
 
@@ -779,6 +835,46 @@ def run_evaluation(
     metrics_path = (
         results_dir
         / f"{name}_metrics.json"
+    )
+
+    preprocessing_manifest_path = (
+        results_dir
+        / f"{name}_preprocessing_manifest.json"
+    )
+
+    preprocessing_manifest = {
+        "name": name,
+        "dataset": str(bundle["dataset_path"]),
+        "rule": (
+            "Preserve the complete prompt. Exclude an example when the "
+            "prompt plus generation prefix alone has at least "
+            "max_sequence_length tokens. For retained preference pairs, "
+            "truncate chosen and rejected responses from the right and "
+            "preserve EOS."
+        ),
+        "filter_order": "filter_overlength_before_max_examples",
+        "max_sequence_length": int(
+            cfg["max_sequence_length"]
+        ),
+        "raw_num_rows": raw_num_rows,
+        "eligible_num_rows": eligible_num_rows,
+        "excluded_num_rows": len(excluded_rows),
+        "requested_max_examples": requested_max_examples,
+        "selected_num_rows": len(rows),
+        "selected_examples": [
+            {
+                "selected_index": selected_index,
+                "prompt_id": row.get("prompt_id"),
+                "source_index": row.get("source_index"),
+            }
+            for selected_index, row in enumerate(rows)
+        ],
+        "excluded_examples": excluded_rows,
+    }
+
+    save_json(
+        preprocessing_manifest_path,
+        preprocessing_manifest,
     )
 
     (
@@ -908,14 +1004,7 @@ def run_evaluation(
             str(adapter),
 
         "dataset":
-            str(
-                dataset_path
-                or cfg[
-                    "paths"
-                ][
-                    "dpo_standard_eval"
-                ]
-            ),
+            str(bundle["dataset_path"]),
 
         "seed":
             int(cfg["seed"]),
@@ -925,6 +1014,28 @@ def run_evaluation(
 
         "num_evaluation_rows":
             len(rows),
+
+        "raw_num_evaluation_rows":
+            raw_num_rows,
+
+        "eligible_num_evaluation_rows":
+            eligible_num_rows,
+
+        "excluded_overlength_rows":
+            len(excluded_rows),
+
+        "requested_max_examples":
+            requested_max_examples,
+
+        "preprocessing_rule":
+            "preserve_prompt_filter_prompt_overflow",
+
+        "preprocessing_manifest":
+            str(
+                preprocessing_manifest_path.relative_to(
+                    repo_path(".")
+                )
+            ),
 
         "max_sequence_length":
             int(
@@ -1031,6 +1142,11 @@ def run_evaluation(
     print(
         "Saved evaluation metrics to "
         f"{metrics_path}"
+    )
+
+    print(
+        "Saved preprocessing manifest to "
+        f"{preprocessing_manifest_path}"
     )
 
     return summary
