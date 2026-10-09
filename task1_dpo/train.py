@@ -16,7 +16,12 @@ from common.data import (
     read_jsonl,
     repo_path,
 )
-from common.logging_utils import append_jsonl, save_json, set_seed, wall_timer
+from common.logging_utils import (
+    append_jsonl,
+    save_json,
+    set_seed,
+    wall_timer,
+)
 from common.models import (
     count_parameters,
     load_policy,
@@ -28,39 +33,68 @@ from task1_dpo.dpo import dpo_loss
 
 
 def make_collate(tokenizer, max_length):
+    """
+    Create the function used by the DataLoader to turn preference
+    examples into padded PyTorch batches.
+
+    Each dataset row contains:
+
+        prompt
+        chosen response
+        rejected response
+
+    The chosen and rejected sequences retain the same prompt. Only
+    response tokens contribute to the DPO sequence log-probabilities.
+    """
+
     def collate(rows):
-        chosen, rejected = [], []
+        chosen_examples = []
+        rejected_examples = []
 
         for row in rows:
             prompt = prompt_messages_from_preference(row)
-            chosen_response, rejected_response = preference_responses(row)
 
-            chosen.append(
+            (
+                chosen_response,
+                rejected_response,
+            ) = preference_responses(row)
+
+            chosen_examples.append(
                 encode_prompt_response(
-                    tokenizer,
-                    prompt,
-                    chosen_response,
-                    max_length,
-                )
-            )
-            rejected.append(
-                encode_prompt_response(
-                    tokenizer,
-                    prompt,
-                    rejected_response,
-                    max_length,
+                    tokenizer=tokenizer,
+                    messages=prompt,
+                    response=chosen_response,
+                    max_length=max_length,
                 )
             )
 
-        return (
-            pad_batch(tokenizer, chosen),
-            pad_batch(tokenizer, rejected),
+            rejected_examples.append(
+                encode_prompt_response(
+                    tokenizer=tokenizer,
+                    messages=prompt,
+                    response=rejected_response,
+                    max_length=max_length,
+                )
+            )
+
+        chosen_batch = pad_batch(
+            tokenizer,
+            chosen_examples,
         )
+
+        rejected_batch = pad_batch(
+            tokenizer,
+            rejected_examples,
+        )
+
+        return chosen_batch, rejected_batch
 
     return collate
 
 
 def move_batch(batch, device):
+    """Move every tensor in a batch onto the model's device."""
+
     return {
         name: tensor.to(device)
         for name, tensor in batch.items()
@@ -68,21 +102,39 @@ def move_batch(batch, device):
 
 
 def response_sequence_logps(model, batch):
+    """
+    Calculate one response log-probability for every sequence.
+
+    A causal language model predicts the token at position t+1 using
+    the tokens through position t. Therefore, logits and labels must
+    be shifted by one position.
+
+    The response mask is zero over prompt and padding tokens and one
+    over response tokens. Summing masked token log-probabilities gives:
+
+        log pi(response | prompt)
+
+    for each example in the batch.
+    """
+
     outputs = model(
         input_ids=batch["input_ids"],
         attention_mask=batch["attention_mask"],
         use_cache=False,
     )
 
+    # The logits at position t predict the token at position t + 1.
     shifted_logits = outputs.logits[:, :-1, :]
     shifted_labels = batch["input_ids"][:, 1:]
     shifted_response_mask = batch["response_mask"][:, 1:]
 
+    # Select the raw logit assigned to the token that actually occurs.
     selected_logits = shifted_logits.gather(
         dim=-1,
         index=shifted_labels.unsqueeze(-1),
     ).squeeze(-1)
 
+    # logsumexp is the denominator of log-softmax.
     log_normalizers = torch.logsumexp(
         shifted_logits,
         dim=-1,
@@ -92,10 +144,28 @@ def response_sequence_logps(model, batch):
         selected_logits - log_normalizers
     ).float()
 
-    return (
+    # Ignore prompt and padding positions.
+    sequence_logps = (
         token_logps
         * shifted_response_mask.float()
     ).sum(dim=-1)
+
+    return sequence_logps
+
+
+def _selected_example_record(
+    row: dict,
+    selected_index: int,
+):
+    """Create lightweight provenance information for a retained row."""
+
+    return {
+        "selected_index": selected_index,
+        "prompt_id": row.get("prompt_id"),
+        "source_index": row.get("source_index"),
+        "source_split": row.get("source_split"),
+        "length_stratum": row.get("length_stratum"),
+    }
 
 
 def prepare_dpo_run(
@@ -104,6 +174,23 @@ def prepare_dpo_run(
     beta: float | None = None,
     max_examples: int | None = None,
 ):
+    """
+    Load configuration, preprocess data, load the policy, and create
+    the optimizer and DataLoader.
+
+    The preprocessing policy is:
+
+    1. Preserve the complete prompt.
+    2. Exclude rows whose prompt alone cannot fit.
+    3. For retained rows, truncate response tokens from the right.
+    4. Preserve EOS when the tokenizer provides one.
+    5. Apply max_examples only after filtering.
+
+    Filtering before max_examples ensures that short ablations still
+    receive the requested number of valid examples whenever enough
+    valid rows are available.
+    """
+
     cfg = load_yaml(config_path)
     set_seed(int(cfg["seed"]))
 
@@ -119,12 +206,9 @@ def prepare_dpo_run(
             "The selected DPO training dataset is empty."
         )
 
-    if (
-        max_examples is not None
-        and int(max_examples) < 1
-    ):
+    if max_examples is not None and int(max_examples) < 1:
         raise ValueError(
-            "max_examples must be at least 1 when provided."
+            "max_examples must be positive when provided."
         )
 
     selected_beta = float(
@@ -138,36 +222,32 @@ def prepare_dpo_run(
             "DPO beta must be positive."
         )
 
-    tokenizer = load_tokenizer(
-        cfg["base_model"]
-    )
-
     max_sequence_length = int(
         cfg["max_sequence_length"]
     )
 
+    tokenizer = load_tokenizer(
+        cfg["base_model"]
+    )
+
     eligible_rows, excluded_rows = (
         filter_overlength_preference_rows(
-            raw_rows,
-            tokenizer,
-            max_sequence_length,
+            rows=raw_rows,
+            tokenizer=tokenizer,
+            max_length=max_sequence_length,
         )
     )
 
-    if not eligible_rows:
+    if max_examples is None:
+        rows = eligible_rows
+    else:
+        rows = eligible_rows[: int(max_examples)]
+
+    if not rows:
         raise ValueError(
-            "No DPO examples remain after filtering "
-            "prompts that do not fit inside "
-            f"max_sequence_length={max_sequence_length}."
+            "No DPO training examples remain after applying "
+            "the prompt-length filter."
         )
-
-    # Filtering happens before max_examples so a short
-    # ablation still receives the requested number of
-    # valid examples.
-    rows = eligible_rows
-
-    if max_examples is not None:
-        rows = rows[: int(max_examples)]
 
     print(
         "DPO preprocessing: "
@@ -186,9 +266,7 @@ def prepare_dpo_run(
 
     loader = DataLoader(
         rows,
-        batch_size=int(
-            cfg["batch_size"]
-        ),
+        batch_size=int(cfg["batch_size"]),
         shuffle=True,
         collate_fn=make_collate(
             tokenizer,
@@ -196,9 +274,7 @@ def prepare_dpo_run(
         ),
     )
 
-    parameters = trainable_parameters(
-        model
-    )
+    parameters = trainable_parameters(model)
 
     if not parameters:
         raise RuntimeError(
@@ -207,31 +283,20 @@ def prepare_dpo_run(
 
     optimizer = AdamW(
         parameters,
-        lr=float(
-            cfg["learning_rate"]
-        ),
+        lr=float(cfg["learning_rate"]),
         weight_decay=float(
-            cfg.get(
-                "weight_decay",
-                0.0,
-            )
+            cfg.get("weight_decay", 0.0)
         ),
     )
 
     return {
         "cfg": cfg,
-        "rows": rows,
-        "raw_num_rows": len(raw_rows),
-        "eligible_num_rows": len(
-            eligible_rows
-        ),
+        "raw_rows": raw_rows,
+        "eligible_rows": eligible_rows,
         "excluded_rows": excluded_rows,
-        "requested_max_examples": (
-            None
-            if max_examples is None
-            else int(max_examples)
-        ),
+        "rows": rows,
         "dataset_path": selected_dataset,
+        "requested_max_examples": max_examples,
         "tokenizer": tokenizer,
         "model": model,
         "loader": loader,
@@ -249,14 +314,19 @@ def run_training(
     beta: float | None = None,
     max_examples: int | None = None,
 ):
+    """Run DPO training and save the adapter, logs, and metadata."""
+
     bundle = prepare_dpo_run(
-        config_path,
-        dataset_path,
-        beta,
-        max_examples,
+        config_path=config_path,
+        dataset_path=dataset_path,
+        beta=beta,
+        max_examples=max_examples,
     )
 
     cfg = bundle["cfg"]
+    raw_rows = bundle["raw_rows"]
+    eligible_rows = bundle["eligible_rows"]
+    excluded_rows = bundle["excluded_rows"]
     rows = bundle["rows"]
     tokenizer = bundle["tokenizer"]
     model = bundle["model"]
@@ -265,26 +335,12 @@ def run_training(
     optimizer = bundle["optimizer"]
     selected_beta = bundle["beta"]
 
-    raw_num_rows = bundle[
-        "raw_num_rows"
-    ]
-    eligible_num_rows = bundle[
-        "eligible_num_rows"
-    ]
-    excluded_rows = bundle[
-        "excluded_rows"
-    ]
-    requested_max_examples = bundle[
-        "requested_max_examples"
-    ]
-
     output_spec = (
         output_path
         or cfg["standard_output"]
     )
-    output = repo_path(
-        output_spec
-    )
+
+    output = repo_path(output_spec)
 
     results_dir = repo_path(
         cfg["results_dir"]
@@ -298,71 +354,21 @@ def run_training(
         results_dir
         / f"{run_name}_train_log.jsonl"
     )
+
     summary_path = (
         results_dir
         / f"{run_name}_train_summary.json"
     )
+
+    # Training and evaluation must use different filenames.
+    # Otherwise, evaluating a run named "standard" would overwrite
+    # the corresponding training preprocessing manifest.
     filter_manifest_path = (
         results_dir
-        / f"{run_name}_preprocessing_manifest.json"
+        / f"{run_name}_train_preprocessing_manifest.json"
     )
 
-    preprocessing_manifest = {
-        "run_name": run_name,
-        "dataset": str(
-            bundle["dataset_path"]
-        ),
-        "rule": (
-            "Preserve the complete prompt. Exclude an "
-            "example when the prompt plus generation "
-            "prefix alone has at least max_sequence_length "
-            "tokens. For retained examples, truncate "
-            "chosen and rejected responses from the right "
-            "and preserve EOS."
-        ),
-        "filter_order": (
-            "filter_overlength_before_max_examples"
-        ),
-        "max_sequence_length": int(
-            cfg["max_sequence_length"]
-        ),
-        "raw_num_rows": raw_num_rows,
-        "eligible_num_rows": (
-            eligible_num_rows
-        ),
-        "excluded_num_rows": len(
-            excluded_rows
-        ),
-        "requested_max_examples": (
-            requested_max_examples
-        ),
-        "selected_num_rows": len(rows),
-        "selected_examples": [
-            {
-                "selected_index": (
-                    selected_index
-                ),
-                "prompt_id": row.get(
-                    "prompt_id"
-                ),
-                "source_index": row.get(
-                    "source_index"
-                ),
-            }
-            for selected_index, row
-            in enumerate(rows)
-        ],
-        "excluded_examples": (
-            excluded_rows
-        ),
-    }
-
-    save_json(
-        filter_manifest_path,
-        preprocessing_manifest,
-    )
-
-    # Clear an old log with the same run name.
+    # Start this run with a clean log.
     log_path.write_text(
         "",
         encoding="utf-8",
@@ -372,15 +378,20 @@ def run_training(
         model.parameters()
     ).device
 
-    epochs = int(
-        cfg["epochs"]
-    )
+    epochs = int(cfg["epochs"])
+
     accumulation_steps = int(
         cfg["grad_accum_steps"]
     )
+
     max_grad_norm = float(
         cfg["max_grad_norm"]
     )
+
+    if epochs < 1:
+        raise ValueError(
+            "epochs must be at least 1."
+        )
 
     if accumulation_steps < 1:
         raise ValueError(
@@ -418,11 +429,14 @@ def run_training(
     examples_seen = 0
     update_step = 0
 
+    model.train()
+
     for epoch_index in range(epochs):
         window_sums = {
             name: 0.0
             for name in metric_names
         }
+
         window_examples = 0
         window_microbatches = 0
 
@@ -434,6 +448,7 @@ def run_training(
                 chosen_batch,
                 device,
             )
+
             rejected_batch = move_batch(
                 rejected_batch,
                 device,
@@ -445,8 +460,9 @@ def run_training(
                 ].shape[0]
             )
 
-            # The same base model is used as the frozen
-            # reference by temporarily disabling LoRA.
+            # Calculate reference log-probabilities with the LoRA
+            # adapter disabled. The reference values are constants,
+            # so gradients are unnecessary.
             with torch.no_grad():
                 with reference_mode(model):
                     ref_chosen_logp = (
@@ -455,6 +471,7 @@ def run_training(
                             chosen_batch,
                         )
                     )
+
                     ref_rejected_logp = (
                         response_sequence_logps(
                             model,
@@ -462,13 +479,14 @@ def run_training(
                         )
                     )
 
-            # These passes use the trainable LoRA policy.
+            # Calculate log-probabilities from the trainable policy.
             policy_chosen_logp = (
                 response_sequence_logps(
                     model,
                     chosen_batch,
                 )
             )
+
             policy_rejected_logp = (
                 response_sequence_logps(
                     model,
@@ -477,17 +495,16 @@ def run_training(
             )
 
             loss, diagnostics = dpo_loss(
-                policy_chosen_logp,
-                policy_rejected_logp,
-                ref_chosen_logp,
-                ref_rejected_logp,
-                selected_beta,
+                policy_chosen_logp=policy_chosen_logp,
+                policy_rejected_logp=policy_rejected_logp,
+                ref_chosen_logp=ref_chosen_logp,
+                ref_rejected_logp=ref_rejected_logp,
+                beta=selected_beta,
             )
 
-            # The final accumulation window may contain
-            # fewer microbatches, so calculate its actual
-            # size instead of always dividing by the
-            # configured accumulation_steps.
+            # Normally an optimizer update uses accumulation_steps
+            # microbatches. The final window can be smaller, so its
+            # divisor must use its actual size.
             window_start = (
                 batch_index
                 // accumulation_steps
@@ -523,19 +540,21 @@ def run_training(
                 ),
             }
 
+            # Weight metrics by the actual number of examples. This
+            # matters for the final batch when it is smaller.
             for name in metric_names:
                 weighted_value = (
                     batch_metrics[name]
                     * batch_size
                 )
 
-                window_sums[
-                    name
-                ] += weighted_value
+                window_sums[name] += (
+                    weighted_value
+                )
 
-                run_sums[
-                    name
-                ] += weighted_value
+                run_sums[name] += (
+                    weighted_value
+                )
 
             window_examples += batch_size
             window_microbatches += 1
@@ -558,9 +577,11 @@ def run_training(
             )
 
             optimizer.step()
+
             optimizer.zero_grad(
                 set_to_none=True
             )
+
             update_step += 1
 
             record = {
@@ -570,9 +591,7 @@ def run_training(
                 "microbatches": (
                     window_microbatches
                 ),
-                "examples_seen": (
-                    examples_seen
-                ),
+                "examples_seen": examples_seen,
                 "beta": selected_beta,
                 "loss": (
                     window_sums["loss"]
@@ -617,27 +636,30 @@ def run_training(
                 f"preference_accuracy="
                 f"{record['preference_accuracy']:.4f} "
                 f"grad_norm="
-                f"{record['grad_norm']:.4f}"
+                f"{record['grad_norm']:.4f}",
+                flush=True,
             )
 
             window_sums = {
                 name: 0.0
                 for name in metric_names
             }
+
             window_examples = 0
             window_microbatches = 0
+
+    if run_examples == 0:
+        raise RuntimeError(
+            "DPO training processed no examples."
+        )
 
     output.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    model.save_pretrained(
-        output
-    )
-    tokenizer.save_pretrained(
-        output
-    )
+    model.save_pretrained(output)
+    tokenizer.save_pretrained(output)
 
     elapsed_seconds = float(
         timer()
@@ -653,6 +675,58 @@ def run_training(
             / (1024 ** 3)
         )
 
+    preprocessing_rule = (
+        "Preserve the complete prompt. Exclude an example when "
+        "the prompt plus generation prefix alone has at least "
+        "max_sequence_length tokens. For retained preference "
+        "pairs, truncate chosen and rejected responses from the "
+        "right and preserve EOS."
+    )
+
+    preprocessing_manifest = {
+        "name": run_name,
+        "stage": "training",
+        "dataset": str(
+            bundle["dataset_path"]
+        ),
+        "rule": preprocessing_rule,
+        "filter_order": (
+            "filter_overlength_before_max_examples"
+        ),
+        "max_sequence_length": int(
+            cfg["max_sequence_length"]
+        ),
+        "raw_num_rows": len(raw_rows),
+        "eligible_num_rows": len(
+            eligible_rows
+        ),
+        "excluded_num_rows": len(
+            excluded_rows
+        ),
+        "requested_max_examples": (
+            bundle[
+                "requested_max_examples"
+            ]
+        ),
+        "selected_num_rows": len(rows),
+        "selected_examples": [
+            _selected_example_record(
+                row,
+                selected_index,
+            )
+            for selected_index, row
+            in enumerate(rows)
+        ],
+        "excluded_examples": (
+            excluded_rows
+        ),
+    }
+
+    save_json(
+        filter_manifest_path,
+        preprocessing_manifest,
+    )
+
     summary = {
         "run_name": run_name,
         "config": config_path,
@@ -662,36 +736,27 @@ def run_training(
         "adapter_output": str(
             output_spec
         ),
-        "seed": int(
-            cfg["seed"]
+        "seed": int(cfg["seed"]),
+        "raw_num_train_rows": len(
+            raw_rows
         ),
-
-        # Preprocessing information
-        "num_train_rows": len(rows),
-        "raw_num_train_rows": (
-            raw_num_rows
+        "eligible_num_train_rows": len(
+            eligible_rows
         ),
-        "eligible_num_train_rows": (
-            eligible_num_rows
-        ),
-        "excluded_overlength_rows": len(
+        "excluded_num_train_rows": len(
             excluded_rows
         ),
-        "requested_max_examples": (
-            requested_max_examples
+        "num_train_rows": len(rows),
+        "examples_processed": (
+            run_examples
         ),
         "preprocessing_rule": (
-            "preserve_prompt_filter_prompt_overflow"
+            preprocessing_rule
         ),
         "preprocessing_manifest": str(
             filter_manifest_path.relative_to(
                 repo_path(".")
             )
-        ),
-
-        # Training information
-        "examples_processed": (
-            run_examples
         ),
         "epochs": epochs,
         "batch_size": int(
@@ -729,8 +794,6 @@ def run_training(
         "trainable_parameters": (
             trainable_count
         ),
-
-        # Aggregate metrics
         "mean_train_loss": (
             run_sums["loss"]
             / run_examples
@@ -751,8 +814,6 @@ def run_training(
             ]
             / run_examples
         ),
-
-        # Resource information
         "wall_clock_seconds": (
             elapsed_seconds
         ),
@@ -772,44 +833,61 @@ def run_training(
     )
 
     print(
-        f"Saved adapter to {output}"
+        f"Saved adapter to {output}",
+        flush=True,
     )
+
     print(
-        f"Saved training log to {log_path}"
+        f"Saved training log to {log_path}",
+        flush=True,
     )
+
     print(
         "Saved training summary to "
-        f"{summary_path}"
+        f"{summary_path}",
+        flush=True,
     )
+
     print(
         "Saved preprocessing manifest to "
-        f"{filter_manifest_path}"
+        f"{filter_manifest_path}",
+        flush=True,
     )
 
     return summary
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=(
+            "Train a LoRA policy using Direct "
+            "Preference Optimization."
+        )
+    )
 
     parser.add_argument(
         "--config",
         default="configs/dpo.yaml",
     )
+
     parser.add_argument(
         "--run-name",
         default="standard",
     )
+
     parser.add_argument(
-        "--dataset"
+        "--dataset",
     )
+
     parser.add_argument(
-        "--output"
+        "--output",
     )
+
     parser.add_argument(
         "--beta",
         type=float,
     )
+
     parser.add_argument(
         "--max-examples",
         type=int,
@@ -818,12 +896,12 @@ def main():
     args = parser.parse_args()
 
     run_training(
-        args.config,
-        args.run_name,
-        args.dataset,
-        args.output,
-        args.beta,
-        args.max_examples,
+        config_path=args.config,
+        run_name=args.run_name,
+        dataset_path=args.dataset,
+        output_path=args.output,
+        beta=args.beta,
+        max_examples=args.max_examples,
     )
 
 

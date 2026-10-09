@@ -839,7 +839,7 @@ def run_evaluation(
 
     preprocessing_manifest_path = (
         results_dir
-        / f"{name}_preprocessing_manifest.json"
+        / f"{name}_evaluation_preprocessing_manifest.json"
     )
 
     preprocessing_manifest = {
@@ -884,9 +884,7 @@ def run_evaluation(
         policy,
         tokenizer,
         rows,
-        batch_size=int(
-            cfg["batch_size"]
-        ),
+        batch_size=int(cfg.get("evaluation_batch_size", cfg["batch_size"])),
         max_sequence_length=int(
             cfg["max_sequence_length"]
         ),
@@ -905,9 +903,7 @@ def run_evaluation(
         policy,
         tokenizer,
         rows,
-        batch_size=int(
-            cfg["batch_size"]
-        ),
+        batch_size=int(cfg.get("evaluation_batch_size", cfg["batch_size"])),
         max_prompt_length=int(
             cfg["max_sequence_length"]
         ),
@@ -971,9 +967,7 @@ def run_evaluation(
             add_reward_scores(
                 cfg,
                 generation_records,
-                batch_size=int(
-                    cfg["batch_size"]
-                ),
+                batch_size=int(cfg.get("evaluation_batch_size", cfg["batch_size"])),
             )
         )
 
