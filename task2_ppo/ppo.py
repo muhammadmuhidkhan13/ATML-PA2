@@ -232,14 +232,14 @@ def value_mse_loss(
     returns,
     mask,
 ):
-    """Compute masked mean-squared error for the critic."""
-
-    squared_error = (
-        predicted_values - returns
-    ) ** 2
+    """Masked critic regression loss computed safely in float32."""
+    value_error = (
+        predicted_values.float()
+        - returns.float()
+    )
 
     return masked_mean(
-        squared_error,
+        value_error.square(),
         mask,
     )
 
