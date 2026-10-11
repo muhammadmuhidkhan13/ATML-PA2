@@ -1,0 +1,166 @@
+{
+  "config": "configs/feedback.yaml",
+  "dataset": "data/task5_controlled_reward_diagnostics.jsonl",
+  "num_problems": 20,
+  "num_responses": 100,
+  "num_pairwise_comparisons": 200,
+  "comparisons_per_problem": 10,
+  "comparisons_per_response": 4,
+  "ai_judging_skipped": false,
+  "exact_expectation_mismatches": 0,
+  "exact_variant_summary": [
+    {
+      "variant_type": "clean_correct",
+      "num_responses": 20,
+      "exact_reward_mean": 1.0,
+      "expected_exact_reward_mean": 1.0,
+      "expected_match_rate": 1.0,
+      "designated_answer_rate": 1.0
+    },
+    {
+      "variant_type": "corrupt_reasoning_correct_final",
+      "num_responses": 20,
+      "exact_reward_mean": 1.0,
+      "expected_exact_reward_mean": 1.0,
+      "expected_match_rate": 1.0,
+      "designated_answer_rate": 1.0
+    },
+    {
+      "variant_type": "good_reasoning_wrong_final",
+      "num_responses": 20,
+      "exact_reward_mean": 0.0,
+      "expected_exact_reward_mean": 0.0,
+      "expected_match_rate": 1.0,
+      "designated_answer_rate": 1.0
+    },
+    {
+      "variant_type": "persuasive_filler_correct",
+      "num_responses": 20,
+      "exact_reward_mean": 1.0,
+      "expected_exact_reward_mean": 1.0,
+      "expected_match_rate": 1.0,
+      "designated_answer_rate": 1.0
+    },
+    {
+      "variant_type": "gold_distractor_wrong_final",
+      "num_responses": 20,
+      "exact_reward_mean": 0.0,
+      "expected_exact_reward_mean": 0.0,
+      "expected_match_rate": 1.0,
+      "designated_answer_rate": 1.0
+    }
+  ],
+  "ai_variant_summary": [
+    {
+      "variant_type": "clean_correct",
+      "num_responses": 20,
+      "ai_group_reward_mean": 0.5,
+      "ai_group_reward_std": 0.06846531968814576,
+      "mean_ai_wins": 0.25,
+      "mean_ai_ties": 3.5,
+      "mean_ai_losses": 0.25
+    },
+    {
+      "variant_type": "corrupt_reasoning_correct_final",
+      "num_responses": 20,
+      "ai_group_reward_mean": 0.5,
+      "ai_group_reward_std": 0.07905694150420949,
+      "mean_ai_wins": 0.2,
+      "mean_ai_ties": 3.6,
+      "mean_ai_losses": 0.2
+    },
+    {
+      "variant_type": "good_reasoning_wrong_final",
+      "num_responses": 20,
+      "ai_group_reward_mean": 0.475,
+      "ai_group_reward_std": 0.049999999999999996,
+      "mean_ai_wins": 0.0,
+      "mean_ai_ties": 3.8,
+      "mean_ai_losses": 0.2
+    },
+    {
+      "variant_type": "persuasive_filler_correct",
+      "num_responses": 20,
+      "ai_group_reward_mean": 0.5875,
+      "ai_group_reward_std": 0.13169567191065923,
+      "mean_ai_wins": 0.8,
+      "mean_ai_ties": 3.1,
+      "mean_ai_losses": 0.1
+    },
+    {
+      "variant_type": "gold_distractor_wrong_final",
+      "num_responses": 20,
+      "ai_group_reward_mean": 0.4375,
+      "ai_group_reward_std": 0.12183492931011204,
+      "mean_ai_wins": 0.1,
+      "mean_ai_ties": 3.3,
+      "mean_ai_losses": 0.6
+    }
+  ],
+  "clean_comparison_summary": [
+    {
+      "perturbed_variant": "corrupt_reasoning_correct_final",
+      "num_problems": 20,
+      "clean_better_rate": 0.0,
+      "tie_rate": 1.0,
+      "perturbation_better_rate": 0.0
+    },
+    {
+      "perturbed_variant": "good_reasoning_wrong_final",
+      "num_problems": 20,
+      "clean_better_rate": 0.0,
+      "tie_rate": 1.0,
+      "perturbation_better_rate": 0.0
+    },
+    {
+      "perturbed_variant": "persuasive_filler_correct",
+      "num_problems": 20,
+      "clean_better_rate": 0.0,
+      "tie_rate": 0.75,
+      "perturbation_better_rate": 0.25
+    },
+    {
+      "perturbed_variant": "gold_distractor_wrong_final",
+      "num_problems": 20,
+      "clean_better_rate": 0.25,
+      "tie_rate": 0.75,
+      "perturbation_better_rate": 0.0
+    }
+  ],
+  "sensitivity_summary": {
+    "reasoning_sensitivity": {
+      "comparison": "clean_correct minus corrupt_reasoning_correct_final",
+      "exact_reward_gap": 0.0,
+      "ai_group_reward_gap": 0.0,
+      "ai_clean_better_rate": 0.0,
+      "interpretation": "The final answer is held correct while reasoning is corrupted."
+    },
+    "outcome_sensitivity": {
+      "comparison": "clean_correct minus good_reasoning_wrong_final",
+      "exact_reward_gap": 1.0,
+      "ai_group_reward_gap": 0.025000000000000022,
+      "ai_clean_better_rate": 0.0,
+      "interpretation": "Reasoning is mostly preserved while the designated final answer is made wrong."
+    },
+    "persuasive_filler_sensitivity": {
+      "comparison": "clean_correct minus persuasive_filler_correct",
+      "exact_reward_gap": 0.0,
+      "ai_group_reward_gap": -0.08750000000000002,
+      "ai_perturbation_better_rate": 0.25,
+      "interpretation": "Correctness is held fixed while persuasive but unnecessary text is added."
+    },
+    "gold_distractor_resistance": {
+      "comparison": "clean_correct minus gold_distractor_wrong_final",
+      "exact_reward_gap": 1.0,
+      "ai_group_reward_gap": 0.0625,
+      "ai_clean_better_rate": 0.25,
+      "interpretation": "The correct number is mentioned as a distractor, but the designated final answer is wrong."
+    }
+  },
+  "outputs": {
+    "exact_scores": "/content/ATML-PA2/results/task5_feedback/controlled_exact_scores.jsonl",
+    "pairwise_judgments": "/content/ATML-PA2/results/task5_feedback/controlled_pairwise_judgments.jsonl",
+    "ai_group_scores": "/content/ATML-PA2/results/task5_feedback/controlled_ai_group_scores.jsonl",
+    "qualitative_candidates": "/content/ATML-PA2/results/task5_feedback/controlled_qualitative_candidates.json"
+  }
+}

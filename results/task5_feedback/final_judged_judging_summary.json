@@ -1,0 +1,31 @@
+{
+  "judge_model": "Qwen/Qwen2.5-3B-Instruct",
+  "new_judgments": 800,
+  "elapsed_seconds": 110.95984093599873,
+  "outputs": [
+    {
+      "dataset": "gsm8k",
+      "target_policy": "rlvr",
+      "num_pairs": 300,
+      "output": "/content/ATML-PA2/results/task5_feedback/final_judged_gsm8k_rlvr_vs_sft.jsonl"
+    },
+    {
+      "dataset": "gsm8k",
+      "target_policy": "rlaif",
+      "num_pairs": 300,
+      "output": "/content/ATML-PA2/results/task5_feedback/final_judged_gsm8k_rlaif_vs_sft.jsonl"
+    },
+    {
+      "dataset": "transfer",
+      "target_policy": "rlvr",
+      "num_pairs": 100,
+      "output": "/content/ATML-PA2/results/task5_feedback/final_judged_transfer_rlvr_vs_sft.jsonl"
+    },
+    {
+      "dataset": "transfer",
+      "target_policy": "rlaif",
+      "num_pairs": 100,
+      "output": "/content/ATML-PA2/results/task5_feedback/final_judged_transfer_rlaif_vs_sft.jsonl"
+    }
+  ]
+}

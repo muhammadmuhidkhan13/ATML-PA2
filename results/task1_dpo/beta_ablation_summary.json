@@ -1,0 +1,69 @@
+{
+  "config": "configs/dpo.yaml",
+  "experiment": "matched_dpo_beta_ablation",
+  "betas": [
+    0.03,
+    0.1,
+    0.3
+  ],
+  "max_train_examples_per_condition": 600,
+  "conditions": [
+    {
+      "beta": 0.03,
+      "run_name": "beta_0p03",
+      "train_examples": 600,
+      "optimizer_updates": 38,
+      "training_loss": 0.6919664204120636,
+      "training_preference_accuracy": 0.565,
+      "heldout_dpo_loss": 0.6865118353531279,
+      "heldout_preference_accuracy": 0.6068965517241379,
+      "heldout_relative_margin": 0.14466440369342937,
+      "sampled_kl_token_mean": -4.741653049969857e-05,
+      "reward_model_score_mean": 1.2717112837166622,
+      "response_length_mean": 151.60344827586206,
+      "response_length_std": 104.07714970903878,
+      "terminated_with_eos_rate": 0.5827586206896552,
+      "truncation_rate": 0.41724137931034483,
+      "train_summary": "results\\task1_dpo\\beta_0p03_train_summary.json",
+      "evaluation_metrics": "results\\task1_dpo\\beta_0p03_eval_metrics.json"
+    },
+    {
+      "beta": 0.1,
+      "run_name": "beta_0p1",
+      "train_examples": 600,
+      "optimizer_updates": 38,
+      "training_loss": 0.6896193397045135,
+      "training_preference_accuracy": 0.5533333333333333,
+      "heldout_dpo_loss": 0.6869322254739959,
+      "heldout_preference_accuracy": 0.596551724137931,
+      "heldout_relative_margin": 0.1343814775861543,
+      "sampled_kl_token_mean": 5.71582088921001e-05,
+      "reward_model_score_mean": 1.230084412673424,
+      "response_length_mean": 154.12413793103448,
+      "response_length_std": 105.04720664661598,
+      "terminated_with_eos_rate": 0.5758620689655173,
+      "truncation_rate": 0.4241379310344828,
+      "train_summary": "results\\task1_dpo\\beta_0p1_train_summary.json",
+      "evaluation_metrics": "results\\task1_dpo\\beta_0p1_eval_metrics.json"
+    },
+    {
+      "beta": 0.3,
+      "run_name": "beta_0p3",
+      "train_examples": 600,
+      "optimizer_updates": 38,
+      "training_loss": 0.683792136112849,
+      "training_preference_accuracy": 0.5666666666666667,
+      "heldout_dpo_loss": 0.6871534594174089,
+      "heldout_preference_accuracy": 0.6,
+      "heldout_relative_margin": 0.12769459074941175,
+      "sampled_kl_token_mean": -0.00018601109074881594,
+      "reward_model_score_mean": 1.305767453950027,
+      "response_length_mean": 153.40689655172415,
+      "response_length_std": 105.67265633675137,
+      "terminated_with_eos_rate": 0.5586206896551724,
+      "truncation_rate": 0.4413793103448276,
+      "train_summary": "results\\task1_dpo\\beta_0p3_train_summary.json",
+      "evaluation_metrics": "results\\task1_dpo\\beta_0p3_eval_metrics.json"
+    }
+  ]
+}

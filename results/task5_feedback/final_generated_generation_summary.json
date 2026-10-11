@@ -1,0 +1,25 @@
+{
+  "config_seed": 6304,
+  "deterministic_generation": true,
+  "temperature": 0.0,
+  "top_p": 1.0,
+  "max_examples": null,
+  "runs": [
+    {
+      "dataset": "gsm8k",
+      "policy": "rlaif",
+      "num_examples": 300,
+      "new_examples": 300,
+      "elapsed_seconds": 826.2820643589985,
+      "output": "/content/ATML-PA2/results/task5_feedback/final_generated_gsm8k_rlaif.jsonl"
+    },
+    {
+      "dataset": "transfer",
+      "policy": "rlaif",
+      "num_examples": 100,
+      "new_examples": 100,
+      "elapsed_seconds": 201.974233799001,
+      "output": "/content/ATML-PA2/results/task5_feedback/final_generated_transfer_rlaif.jsonl"
+    }
+  ]
+}

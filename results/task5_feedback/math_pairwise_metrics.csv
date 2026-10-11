@@ -1,0 +1,5 @@
+dataset,comparison,target_policy,num_pairs,target_ai_win_rate,sft_ai_win_rate,ai_tie_rate,target_normalized_pairwise_score,verifier_judge_agreement_all_rate,num_verifier_decisive_pairs,verifier_judge_agreement_decisive_rate
+gsm8k,rlvr_vs_sft,rlvr,300,0.02666666666666667,0.016666666666666666,0.9566666666666667,0.505,0.94,11,0.2727272727272727
+gsm8k,rlaif_vs_sft,rlaif,300,0.02,0.01,0.97,0.505,0.9466666666666667,10,0.1
+transfer,rlvr_vs_sft,rlvr,100,0.11,0.11,0.78,0.5,0.77,2,0.0
+transfer,rlaif_vs_sft,rlaif,100,0.09,0.11,0.8,0.49,0.78,2,0.0

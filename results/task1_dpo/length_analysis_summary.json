@@ -1,0 +1,149 @@
+{
+  "experiment": "task1_dpo_length_confounding",
+  "config": "configs/dpo.yaml",
+  "seed": 6304,
+  "num_stratified_rows": 237,
+  "raw_num_stratified_rows": 246,
+  "eligible_num_stratified_rows": 237,
+  "excluded_overlength_rows": 9,
+  "requested_eval_max_examples": null,
+  "raw_stratum_counts": {
+    "preferred_longer": 82,
+    "length_matched": 82,
+    "rejected_longer": 82
+  },
+  "eligible_stratum_counts": {
+    "preferred_longer": 78,
+    "length_matched": 80,
+    "rejected_longer": 79
+  },
+  "selected_stratum_counts": {
+    "preferred_longer": 78,
+    "length_matched": 80,
+    "rejected_longer": 79
+  },
+  "excluded_stratum_counts": {
+    "preferred_longer": 4,
+    "length_matched": 2,
+    "rejected_longer": 3
+  },
+  "preprocessing_rule": "preserve_prompt_filter_prompt_overflow",
+  "preprocessing_manifest": "results\\task1_dpo\\length_preprocessing_manifest.json",
+  "num_word_limit_prompts": 10,
+  "policies": {
+    "standard": {
+      "adapter": "C:\\Users\\HP\\Desktop\\ATML\\ATML-PA2-LLM-PostTraining\\outputs\\task1_dpo\\standard",
+      "pair_summary": {
+        "num_pairs": 237,
+        "dpo_loss": 0.6813238123549691,
+        "preference_accuracy": 0.5611814345991561,
+        "relative_margin_mean": 0.29198561162385256,
+        "relative_margin_std": 1.464398627423682
+      },
+      "strata": {
+        "preferred_longer": {
+          "num_pairs": 78,
+          "preference_accuracy": 0.47435897435897434,
+          "dpo_loss": 0.6995576742367867,
+          "relative_margin_mean": -0.07374020111866486,
+          "relative_margin_std": 1.476608424729386,
+          "policy_margin_mean": -99.82693667289539,
+          "reference_margin_mean": -99.75319647177672,
+          "chosen_tokens_mean": 221.26923076923077,
+          "rejected_tokens_mean": 105.25641025641026,
+          "length_difference_mean": 116.01282051282051
+        },
+        "length_matched": {
+          "num_pairs": 80,
+          "preference_accuracy": 0.5625,
+          "dpo_loss": 0.6842240374535322,
+          "relative_margin_mean": 0.21736297383904457,
+          "relative_margin_std": 1.231655014469658,
+          "policy_margin_mean": 7.008902475982905,
+          "reference_margin_mean": 6.79153950214386,
+          "chosen_tokens_mean": 121.85,
+          "rejected_tokens_mean": 122.4,
+          "length_difference_mean": -0.55
+        },
+        "rejected_longer": {
+          "num_pairs": 79,
+          "preference_accuracy": 0.6455696202531646,
+          "dpo_loss": 0.6603838220427308,
+          "relative_margin_mean": 0.7286492118352577,
+          "relative_margin_std": 1.554369506653599,
+          "policy_margin_mean": 129.09991790674908,
+          "reference_margin_mean": 128.37126869491385,
+          "chosen_tokens_mean": 101.0379746835443,
+          "rejected_tokens_mean": 207.08860759493672,
+          "length_difference_mean": -106.0506329113924
+        }
+      },
+      "word_limit_summary": {
+        "num_prompts": 10,
+        "response_length_mean": 43.5,
+        "response_length_std": 21.369370603740297,
+        "response_length_iqr": 21.5,
+        "word_limit_compliance_rate": 0.7,
+        "terminated_with_eos_rate": 1.0,
+        "truncation_rate": 0.0
+      }
+    },
+    "length_balanced": {
+      "adapter": "C:\\Users\\HP\\Desktop\\ATML\\ATML-PA2-LLM-PostTraining\\outputs\\task1_dpo\\length_balanced",
+      "pair_summary": {
+        "num_pairs": 237,
+        "dpo_loss": 0.6763641073482449,
+        "preference_accuracy": 0.6075949367088608,
+        "relative_margin_mean": 0.4457637602266883,
+        "relative_margin_std": 2.0585778218069444
+      },
+      "strata": {
+        "preferred_longer": {
+          "num_pairs": 78,
+          "preference_accuracy": 0.4230769230769231,
+          "dpo_loss": 0.722796944089425,
+          "relative_margin_mean": -0.49219620533478564,
+          "relative_margin_std": 1.95291729080121,
+          "policy_margin_mean": -100.2453926771115,
+          "reference_margin_mean": -99.75319647177672,
+          "chosen_tokens_mean": 221.26923076923077,
+          "rejected_tokens_mean": 105.25641025641026,
+          "length_difference_mean": 116.01282051282051
+        },
+        "length_matched": {
+          "num_pairs": 80,
+          "preference_accuracy": 0.6125,
+          "dpo_loss": 0.6790622513741255,
+          "relative_margin_mean": 0.3386225201189518,
+          "relative_margin_std": 1.475536666878895,
+          "policy_margin_mean": 7.1301620222628115,
+          "reference_margin_mean": 6.79153950214386,
+          "chosen_tokens_mean": 121.85,
+          "rejected_tokens_mean": 122.4,
+          "length_difference_mean": -0.55
+        },
+        "rejected_longer": {
+          "num_pairs": 79,
+          "preference_accuracy": 0.7848101265822784,
+          "dpo_loss": 0.6277867302864413,
+          "relative_margin_mean": 1.4803482731686364,
+          "relative_margin_std": 2.1891159707444245,
+          "policy_margin_mean": 129.85161696808248,
+          "reference_margin_mean": 128.37126869491385,
+          "chosen_tokens_mean": 101.0379746835443,
+          "rejected_tokens_mean": 207.08860759493672,
+          "length_difference_mean": -106.0506329113924
+        }
+      },
+      "word_limit_summary": {
+        "num_prompts": 10,
+        "response_length_mean": 44.6,
+        "response_length_std": 21.157504578754082,
+        "response_length_iqr": 21.5,
+        "word_limit_compliance_rate": 0.7,
+        "terminated_with_eos_rate": 1.0,
+        "truncation_rate": 0.0
+      }
+    }
+  }
+}
