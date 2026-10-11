@@ -1,0 +1,43 @@
+{
+  "status": "verified",
+  "source_archive": "/content/drive/MyDrive/ATML_PA2/task4_inputs/task4_policy_adapters.zip",
+  "source_archive_sha256": "2b95ee8b966ef4d2cd836b3faa296f6612e33cf111c10147c483f46c3bdf6d36",
+  "policies": {
+    "dpo": {
+      "path": "outputs/task1_dpo/standard",
+      "adapter_sha256": "3d88b910d3322a3268ccbab222d511a1cf76025a400af89c838b6d800405823b",
+      "adapter_size_bytes": 4372840,
+      "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "lora_r": 8,
+      "lora_alpha": 16,
+      "target_modules": [
+        "q_proj",
+        "v_proj"
+      ]
+    },
+    "ppo": {
+      "path": "outputs/task2_ppo/standard",
+      "adapter_sha256": "ee07577ece4d85530c142d322bdea0af1db89c7cc2b62300cd830134f8cb1b44",
+      "adapter_size_bytes": 4372840,
+      "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "lora_r": 8,
+      "lora_alpha": 16,
+      "target_modules": [
+        "q_proj",
+        "v_proj"
+      ]
+    },
+    "grpo": {
+      "path": "outputs/task3_grpo/standard",
+      "adapter_sha256": "4466dddaa45635b2172e483a98a90edadcd1a3b56df80d9e58bb23edb414e876",
+      "adapter_size_bytes": 4372840,
+      "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "lora_r": 8,
+      "lora_alpha": 16,
+      "target_modules": [
+        "q_proj",
+        "v_proj"
+      ]
+    }
+  }
+}

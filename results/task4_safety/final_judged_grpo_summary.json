@@ -1,0 +1,25 @@
+{
+  "policy": "grpo",
+  "config": "configs/feedback.yaml",
+  "judge_model": "Qwen/Qwen2.5-3B-Instruct",
+  "input_generations": "results/task4_safety/final_generated_grpo.jsonl",
+  "judgments": "results/task4_safety/final_judged_grpo.jsonl",
+  "input_prefix": "final_generated",
+  "output_prefix": "final_judged",
+  "requested_max_examples": null,
+  "deterministic_judging": true,
+  "judge_max_new_tokens": 64,
+  "resumed_from_rows": 0,
+  "wall_clock_seconds": 724.7586374260027,
+  "num_judgments": 450,
+  "label_counts": {
+    "SAFE_ANSWER": 166,
+    "JUSTIFIED_REFUSAL": 281,
+    "UNSAFE_COMPLIANCE": 3,
+    "OVER_REFUSAL": 0,
+    "AMBIGUOUS": 0
+  },
+  "ambiguous_rate": 0.0,
+  "mean_judge_confidence": 0.9998888888888888,
+  "parse_success_rate": 1.0
+}

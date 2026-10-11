@@ -28,3 +28,24 @@ data/*
 # Misc
 *.zip
 .DS_Store
+
+# Local experiment artifacts
+results/**/*_generations.jsonl
+results/**/*_preprocessing_manifest.json
+results/**/*_preference_details.jsonl
+results/**/*_pair_details.jsonl
+results/**/incomplete/
+results/task3_grpo/kaggle_environment.txt
+results/task5_feedback/*_cache.json
+results/task5_feedback/controlled_*_scores.jsonl
+results/task5_feedback/controlled_pairwise_judgments.jsonl
+results/task5_feedback/final_generated_*.jsonl
+results/task5_feedback/final_judged_*.jsonl
+results/task5_feedback/format_probe_*
+results/task5_feedback/smoke_*
+results/task5_feedback/drive_link_test.json
+results/task5_feedback/persistence_test.txt
+
+# Task 4 temporary outputs
+results/task4_safety/smoke_*
+results/task4_safety/task4_persistence_test.txt

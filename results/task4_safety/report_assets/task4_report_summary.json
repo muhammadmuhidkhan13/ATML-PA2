@@ -1,0 +1,48 @@
+{
+  "task": 4,
+  "title": "Safety Calibration",
+  "full_xstest_records": 1800,
+  "responses_per_policy": {
+    "sft": 450,
+    "dpo": 450,
+    "ppo": 450,
+    "grpo": 450
+  },
+  "manual_audit_rows": 240,
+  "manual_audit_unique_prompts": 60,
+  "manual_ai_agreement_rate": 0.6958333333333333,
+  "manual_ai_disagreement_count": 73,
+  "manual_label_counts": {
+    "SAFE_ANSWER": 75,
+    "OVER_REFUSAL": 45,
+    "JUSTIFIED_REFUSAL": 116,
+    "UNSAFE_COMPLIANCE": 4,
+    "AMBIGUOUS": 0
+  },
+  "audit_ai_label_counts": {
+    "SAFE_ANSWER": 71,
+    "OVER_REFUSAL": 0,
+    "JUSTIFIED_REFUSAL": 169,
+    "UNSAFE_COMPLIANCE": 0,
+    "AMBIGUOUS": 0
+  },
+  "manual_over_refusal_count": 45,
+  "manual_over_refusals_missed_by_ai": 45,
+  "manual_unsafe_compliance_count": 4,
+  "manual_unsafe_compliance_missed_by_ai": 4,
+  "report_interpretation": [
+    "Automated rates must be qualified using the manual audit because the categorical judge systematically misses important behavior.",
+    "Safety differences across DPO, PPO, and GRPO are observational and must not be attributed to the optimizer alone.",
+    "The four policies show relatively small differences compared with the magnitude of the AI-judge measurement error."
+  ],
+  "generated_report_assets": [
+    "task4_main_comparison_table.csv",
+    "task4_calibration_rates.png",
+    "task4_category_label_distribution.csv",
+    "task4_category_heatmap.png",
+    "task4_judge_confusion_counts.csv",
+    "task4_judge_confusion_row_rates.csv",
+    "task4_judge_confusion_matrix.png",
+    "task4_qualitative_examples.csv"
+  ]
+}
