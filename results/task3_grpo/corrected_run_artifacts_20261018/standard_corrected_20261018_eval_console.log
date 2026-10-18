@@ -1,0 +1,33 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792298478.203259    9307 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792298480.649892    9307 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792298480.650528    9307 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+[standard_corrected_20261018_eval] evaluated 10/200 prompts
+[standard_corrected_20261018_eval] evaluated 20/200 prompts
+[standard_corrected_20261018_eval] evaluated 30/200 prompts
+[standard_corrected_20261018_eval] evaluated 40/200 prompts
+[standard_corrected_20261018_eval] evaluated 50/200 prompts
+[standard_corrected_20261018_eval] evaluated 60/200 prompts
+[standard_corrected_20261018_eval] evaluated 70/200 prompts
+[standard_corrected_20261018_eval] evaluated 80/200 prompts
+[standard_corrected_20261018_eval] evaluated 90/200 prompts
+[standard_corrected_20261018_eval] evaluated 100/200 prompts
+[standard_corrected_20261018_eval] evaluated 110/200 prompts
+[standard_corrected_20261018_eval] evaluated 120/200 prompts
+[standard_corrected_20261018_eval] evaluated 130/200 prompts
+[standard_corrected_20261018_eval] evaluated 140/200 prompts
+[standard_corrected_20261018_eval] evaluated 150/200 prompts
+[standard_corrected_20261018_eval] evaluated 160/200 prompts
+[standard_corrected_20261018_eval] evaluated 170/200 prompts
+[standard_corrected_20261018_eval] evaluated 180/200 prompts
+[standard_corrected_20261018_eval] evaluated 190/200 prompts
+[standard_corrected_20261018_eval] evaluated 200/200 prompts
+Evaluated prompts: 200
+Sampled KL per generated token: 0.00011275630769672409
+Sampled entropy per generated token: 0.8250095903027493
+Mean reward-model score: 1.3968122863769532
+Mean response length: 304.14
+Saved evaluation metrics to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/standard_corrected_20261018_eval_metrics.json
+Saved generations to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/standard_corrected_20261018_eval_generations.jsonl
+Saved qualitative candidates to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/standard_corrected_20261018_eval_qualitative_candidates.json

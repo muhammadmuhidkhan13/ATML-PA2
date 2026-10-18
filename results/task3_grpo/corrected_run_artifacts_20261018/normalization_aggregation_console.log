@@ -1,0 +1,17 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792310574.328302   35679 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792310574.399801   35679 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792310576.848547   35679 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792310576.849059   35679 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+
+GRPO normalization study summary
+condition | held-out reward | held-out KL | entropy | mean length | max gradient norm
+canonical_grpo | 1.4282848358154296 | 9.583253115965756e-05 | 0.8518103005935392 | 286.075 | 0.9654155969619751
+dr_grpo | 1.2900093078613282 | 8.050318228785884e-05 | 0.8413430340182984 | 304.265 | 0.10302313417196274
+Saved normalization summary to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_study_summary.json
+Saved normalization comparison to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_comparison.csv
+Saved length-conditioned completion statistics to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_length_conditioned.csv
+Saved length-conditioned update statistics to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_update_length_conditioned.csv
+Saved qualitative candidates to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_qualitative_candidates.json

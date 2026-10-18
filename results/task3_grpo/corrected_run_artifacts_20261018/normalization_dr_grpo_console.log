@@ -1,0 +1,19 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792307176.275964   21528 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792307176.354044   21528 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792307178.857351   21528 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792307178.857878   21528 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+[normalization_dr_grpo] attempt=1 optimizer_updates=1 reward=1.3524 group_std=1.4385 uninformative=0.0000 kl=-0.0000 policy_loss=-0.3515 clip_fraction=0.0000 length=470.5
+[normalization_dr_grpo] attempt=2 optimizer_updates=2 reward=2.6636 group_std=0.5717 uninformative=0.0000 kl=0.0002 policy_loss=0.2104 clip_fraction=0.0000 length=244.5
+[normalization_dr_grpo] attempt=3 optimizer_updates=3 reward=-0.1753 group_std=1.8752 uninformative=0.0000 kl=-0.0003 policy_loss=-0.1904 clip_fraction=0.0000 length=98.5
+[normalization_dr_grpo] attempt=4 optimizer_updates=4 reward=1.8845 group_std=0.5296 uninformative=0.0000 kl=0.0005 policy_loss=-0.0182 clip_fraction=0.0000 length=39.5
+[normalization_dr_grpo] attempt=5 optimizer_updates=5 reward=0.5756 group_std=1.2869 uninformative=0.0000 kl=0.0002 policy_loss=-0.3907 clip_fraction=0.0000 length=510.5
+[normalization_dr_grpo] attempt=6 optimizer_updates=6 reward=2.0908 group_std=0.3148 uninformative=0.0000 kl=-0.0001 policy_loss=-0.2251 clip_fraction=0.0000 length=224.0
+[normalization_dr_grpo] attempt=7 optimizer_updates=7 reward=-0.4802 group_std=0.6817 uninformative=0.0000 kl=-0.0001 policy_loss=-0.0570 clip_fraction=0.0000 length=107.2
+[normalization_dr_grpo] attempt=8 optimizer_updates=8 reward=0.9584 group_std=1.0962 uninformative=0.0000 kl=-0.0002 policy_loss=-0.4010 clip_fraction=0.0000 length=509.5
+Saved GRPO policy adapter to /content/ATML-PA2-TASK3-CORRECTED/outputs/task3_grpo/normalization/dr_grpo
+Saved GRPO training log to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_dr_grpo_train_log.jsonl
+Saved GRPO training generations to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_dr_grpo_train_generations.jsonl
+Saved GRPO training summary to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_dr_grpo_train_summary.json

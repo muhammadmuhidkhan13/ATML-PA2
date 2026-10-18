@@ -1,0 +1,35 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792304447.671032   10198 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792304447.745856   10198 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792304450.178572   10198 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792304450.179074   10198 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+[normalization_grpo_eval] evaluated 10/200 prompts
+[normalization_grpo_eval] evaluated 20/200 prompts
+[normalization_grpo_eval] evaluated 30/200 prompts
+[normalization_grpo_eval] evaluated 40/200 prompts
+[normalization_grpo_eval] evaluated 50/200 prompts
+[normalization_grpo_eval] evaluated 60/200 prompts
+[normalization_grpo_eval] evaluated 70/200 prompts
+[normalization_grpo_eval] evaluated 80/200 prompts
+[normalization_grpo_eval] evaluated 90/200 prompts
+[normalization_grpo_eval] evaluated 100/200 prompts
+[normalization_grpo_eval] evaluated 110/200 prompts
+[normalization_grpo_eval] evaluated 120/200 prompts
+[normalization_grpo_eval] evaluated 130/200 prompts
+[normalization_grpo_eval] evaluated 140/200 prompts
+[normalization_grpo_eval] evaluated 150/200 prompts
+[normalization_grpo_eval] evaluated 160/200 prompts
+[normalization_grpo_eval] evaluated 170/200 prompts
+[normalization_grpo_eval] evaluated 180/200 prompts
+[normalization_grpo_eval] evaluated 190/200 prompts
+[normalization_grpo_eval] evaluated 200/200 prompts
+Evaluated prompts: 200
+Sampled KL per generated token: 9.583253115965756e-05
+Sampled entropy per generated token: 0.8518103005935392
+Mean reward-model score: 1.4282848358154296
+Mean response length: 286.075
+Saved evaluation metrics to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_grpo_eval_metrics.json
+Saved generations to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_grpo_eval_generations.jsonl
+Saved qualitative candidates to /content/ATML-PA2-TASK3-CORRECTED/results/task3_grpo/normalization_grpo_eval_qualitative_candidates.json

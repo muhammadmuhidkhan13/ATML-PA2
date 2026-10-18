@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/muhammadmuhidkhan13/ATML-PA2.git",
+  "commit": "4cb1d15717856e78b3f7123d28d647fa522dfaf8",
+  "purpose": "Corrected GRPO rerun with empty-token optimizer steps skipped",
+  "results_directory": "/content/drive/MyDrive/ATML_PA2/task3_corrected_20261018/results/task3_grpo",
+  "outputs_directory": "/content/drive/MyDrive/ATML_PA2/task3_corrected_20261018/outputs/task3_grpo"
+}
