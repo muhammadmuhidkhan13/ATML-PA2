@@ -23,8 +23,8 @@
       "train_mean_reward": 1.2250537872314453,
       "train_mean_group_reward_std": 0.8829990662634373,
       "train_informative_group_rate": 1.0,
-      "train_sampled_kl": 0.00010604913412779826,
-      "train_entropy": 0.7601709689172,
+      "train_sampled_kl": 2.3170679649664652e-05,
+      "train_entropy": 0.8798841042331573,
       "train_mean_gradient_norm": 0.3568029263988137,
       "train_max_gradient_norm": 1.2375003099441528,
       "train_mean_response_length": 282.6875,
@@ -48,8 +48,8 @@
       "train_mean_reward": 1.2090778350830078,
       "train_mean_group_reward_std": 0.8205565270036459,
       "train_informative_group_rate": 1.0,
-      "train_sampled_kl": 6.399489816663498e-05,
-      "train_entropy": 0.7522128150895863,
+      "train_sampled_kl": 6.376172012155287e-05,
+      "train_entropy": 0.825506532839354,
       "train_mean_gradient_norm": 0.08343200339004397,
       "train_max_gradient_norm": 0.17661350965499878,
       "train_mean_response_length": 284.125,
@@ -92,7 +92,7 @@
       "mean_reward": 1.8967529296875,
       "mean_absolute_advantage": 1.397722887992859,
       "mean_normalization_denominator": 208.6,
-      "mean_per_token_advantage_scale": 0.007076979470074382,
+      "mean_per_token_advantage_scale": 0.007076979470074381,
       "mean_normalized_advantage_mass": 1.397722887992859,
       "truncation_rate": 0.0
     },
@@ -106,7 +106,7 @@
       "mean_reward": 1.7782219780815973,
       "mean_absolute_advantage": 0.7288798967169391,
       "mean_normalization_denominator": 422.94444444444446,
-      "mean_per_token_advantage_scale": 0.0011621883034521664,
+      "mean_per_token_advantage_scale": 0.0011621883034521662,
       "mean_normalized_advantage_mass": 0.4162988095647759,
       "truncation_rate": 0.3888888888888889
     },
@@ -164,8 +164,11 @@
       "max_gradient_norm": 1.2375003099441528,
       "mean_absolute_policy_loss": 0.00017940904945135117,
       "mean_reward": 0.2491912841796875,
-      "mean_sampled_kl": 0.0004286308704535415,
+      "mean_sampled_kl": 0.00037023866837904726,
       "mean_clip_fraction": 0.0,
+      "total_valid_policy_tokens": 462,
+      "updates_with_valid_policy_tokens": 2,
+      "updates_without_valid_policy_tokens": 0,
       "mean_informative_group_rate": 1.0
     },
     {
@@ -180,6 +183,9 @@
       "mean_reward": 0.259033203125,
       "mean_sampled_kl": 0.00022161133566571932,
       "mean_clip_fraction": 0.0,
+      "total_valid_policy_tokens": 875,
+      "updates_with_valid_policy_tokens": 1,
+      "updates_without_valid_policy_tokens": 0,
       "mean_informative_group_rate": 1.0
     },
     {
@@ -192,8 +198,11 @@
       "max_gradient_norm": 0.21784552931785583,
       "mean_absolute_policy_loss": 0.11399609483778476,
       "mean_reward": 1.8086029052734376,
-      "mean_sampled_kl": -4.609600071008325e-05,
+      "mean_sampled_kl": -5.7794407576280224e-05,
       "mean_clip_fraction": 0.0,
+      "total_valid_policy_tokens": 4125,
+      "updates_with_valid_policy_tokens": 4,
+      "updates_without_valid_policy_tokens": 1,
       "mean_informative_group_rate": 1.0
     },
     {
@@ -206,8 +215,11 @@
       "max_gradient_norm": 0.11054201424121857,
       "mean_absolute_policy_loss": 0.0795195687096566,
       "mean_reward": 0.2589111328125,
-      "mean_sampled_kl": 9.004471300586098e-05,
+      "mean_sampled_kl": 0.00017757427046065371,
       "mean_clip_fraction": 0.0,
+      "total_valid_policy_tokens": 623,
+      "updates_with_valid_policy_tokens": 2,
+      "updates_without_valid_policy_tokens": 0,
       "mean_informative_group_rate": 1.0
     },
     {
@@ -220,8 +232,11 @@
       "max_gradient_norm": 0.17661350965499878,
       "mean_absolute_policy_loss": 0.17444427218288183,
       "mean_reward": 1.57049560546875,
-      "mean_sampled_kl": 0.0002513842884495891,
+      "mean_sampled_kl": 0.00027574414020441673,
       "mean_clip_fraction": 0.0,
+      "total_valid_policy_tokens": 1579,
+      "updates_with_valid_policy_tokens": 2,
+      "updates_without_valid_policy_tokens": 0,
       "mean_informative_group_rate": 1.0
     },
     {
@@ -234,15 +249,18 @@
       "max_gradient_norm": 0.08789870887994766,
       "mean_absolute_policy_loss": 0.16954690590500832,
       "mean_reward": 1.5034523010253906,
-      "mean_sampled_kl": -4.2724704394455084e-05,
+      "mean_sampled_kl": -5.893200648827831e-05,
       "mean_clip_fraction": 0.0,
+      "total_valid_policy_tokens": 3306,
+      "updates_with_valid_policy_tokens": 3,
+      "updates_without_valid_policy_tokens": 1,
       "mean_informative_group_rate": 1.0
     }
   ],
-  "comparison_table": "results/task3_grpo/normalization_comparison.csv",
-  "completion_length_table": "results/task3_grpo/normalization_length_conditioned.csv",
-  "completion_details_table": "results/task3_grpo/normalization_completion_details.csv",
-  "update_length_table": "results/task3_grpo/normalization_update_length_conditioned.csv",
-  "update_details_table": "results/task3_grpo/normalization_update_details.csv",
-  "qualitative_candidates": "results/task3_grpo/normalization_qualitative_candidates.json"
+  "comparison_table": "results\\task3_grpo\\normalization_comparison.csv",
+  "completion_length_table": "results\\task3_grpo\\normalization_length_conditioned.csv",
+  "completion_details_table": "results\\task3_grpo\\normalization_completion_details.csv",
+  "update_length_table": "results\\task3_grpo\\normalization_update_length_conditioned.csv",
+  "update_details_table": "results\\task3_grpo\\normalization_update_details.csv",
+  "qualitative_candidates": "results\\task3_grpo\\normalization_qualitative_candidates.json"
 }

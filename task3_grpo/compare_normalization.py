@@ -75,6 +75,40 @@ def _safe_mean(values):
     )
 
 
+def _valid_token_weighted_mean(
+    rows,
+    field,
+):
+    """Aggregate a token diagnostic over valid response tokens."""
+    weighted_sum = 0.0
+    total_valid_tokens = 0.0
+
+    for row in rows:
+        valid_tokens = float(
+            row.get(
+                "valid_policy_tokens",
+                0,
+            )
+        )
+
+        if valid_tokens <= 0:
+            continue
+
+        weighted_sum += (
+            float(row[field])
+            * valid_tokens
+        )
+        total_valid_tokens += valid_tokens
+
+    if total_valid_tokens <= 0:
+        return None
+
+    return float(
+        weighted_sum
+        / total_valid_tokens
+    )
+
+
 def _training_summary_path(
     results_dir,
     run_name,
@@ -628,6 +662,12 @@ def analyze_update_length_conditioning(
                 "clip_fraction": float(
                     row["clip_fraction"]
                 ),
+                "valid_policy_tokens": int(
+                    row.get(
+                        "valid_policy_tokens",
+                        0,
+                    )
+                ),
                 "informative_group_rate": float(
                     row[
                         "informative_group_rate"
@@ -708,23 +748,48 @@ def analyze_update_length_conditioning(
                     ]
                 ),
                 "mean_sampled_kl": (
-                    _safe_mean(
-                        [
-                            row[
-                                "sampled_kl"
-                            ]
-                            for row in selected
-                        ]
+                    _valid_token_weighted_mean(
+                        selected,
+                        "sampled_kl",
                     )
                 ),
                 "mean_clip_fraction": (
-                    _safe_mean(
-                        [
-                            row[
-                                "clip_fraction"
-                            ]
-                            for row in selected
-                        ]
+                    _valid_token_weighted_mean(
+                        selected,
+                        "clip_fraction",
+                    )
+                ),
+                "total_valid_policy_tokens": int(
+                    sum(
+                        float(
+                            row.get(
+                                "valid_policy_tokens",
+                                0,
+                            )
+                        )
+                        for row in selected
+                    )
+                ),
+                "updates_with_valid_policy_tokens": int(
+                    sum(
+                        float(
+                            row.get(
+                                "valid_policy_tokens",
+                                0,
+                            )
+                        ) > 0
+                        for row in selected
+                    )
+                ),
+                "updates_without_valid_policy_tokens": int(
+                    sum(
+                        float(
+                            row.get(
+                                "valid_policy_tokens",
+                                0,
+                            )
+                        ) <= 0
+                        for row in selected
                     )
                 ),
                 "mean_informative_group_rate": (

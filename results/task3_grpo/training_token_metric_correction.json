@@ -1,0 +1,97 @@
+{
+  "correction_scope": "Run-level token diagnostics only",
+  "raw_logs_modified": false,
+  "checkpoints_modified": false,
+  "retraining_performed": false,
+  "raw_log_hashes": {
+    "results\\task3_grpo\\standard_train_log.jsonl": "338b7be97485a78b956bf0bfe47a95eccd826504d77ffc289b17979bd3f01d9f",
+    "results\\task3_grpo\\normalization_grpo_train_log.jsonl": "798e540aeec3191bc6bd00be420ac5e6098e70f854cbafed9445e409545f0b0d",
+    "results\\task3_grpo\\normalization_dr_grpo_train_log.jsonl": "d0350dc9349e413dd997b38c5370820eb163686af8fd3542e077fcf70ccca72a"
+  },
+  "runs": [
+    {
+      "run_name": "standard",
+      "source_log": "results\\task3_grpo\\standard_train_log.jsonl",
+      "corrected_summary": "results\\task3_grpo\\standard_train_summary.json",
+      "attempted_updates": 20,
+      "optimizer_updates": 20,
+      "updates_with_valid_policy_tokens": 16,
+      "updates_without_valid_policy_tokens": 4,
+      "zero_valid_policy_token_update_ids": [
+        5,
+        13,
+        15,
+        17
+      ],
+      "total_generated_tokens": 23862,
+      "total_valid_policy_tokens": 11062,
+      "retained_policy_token_fraction": 0.4635822646886263,
+      "old_values": {
+        "mean_sampled_kl": 0.00018752153330834452,
+        "mean_entropy": 0.7750872024469886,
+        "mean_clip_fraction": 0.0,
+        "mean_ratio": 0.8001085904918946
+      },
+      "corrected_values": {
+        "mean_sampled_kl": 0.0001228126074486852,
+        "mean_entropy": 0.9395078844356292,
+        "mean_clip_fraction": 0.0,
+        "mean_ratio": 1.0000672341416832
+      }
+    },
+    {
+      "run_name": "normalization_grpo",
+      "source_log": "results\\task3_grpo\\normalization_grpo_train_log.jsonl",
+      "corrected_summary": "results\\task3_grpo\\normalization_grpo_train_summary.json",
+      "attempted_updates": 8,
+      "optimizer_updates": 8,
+      "updates_with_valid_policy_tokens": 7,
+      "updates_without_valid_policy_tokens": 1,
+      "zero_valid_policy_token_update_ids": [
+        5
+      ],
+      "total_generated_tokens": 9046,
+      "total_valid_policy_tokens": 5462,
+      "retained_policy_token_fraction": 0.6038027857616626,
+      "old_values": {
+        "mean_sampled_kl": 0.00010604913412779826,
+        "mean_entropy": 0.7601709689172,
+        "mean_clip_fraction": 0.0,
+        "mean_ratio": 0.8750771831620568
+      },
+      "corrected_values": {
+        "mean_sampled_kl": 2.3170679649664652e-05,
+        "mean_entropy": 0.8798841042331573,
+        "mean_clip_fraction": 0.0,
+        "mean_ratio": 1.0000164693788223
+      }
+    },
+    {
+      "run_name": "normalization_dr_grpo",
+      "source_log": "results\\task3_grpo\\normalization_dr_grpo_train_log.jsonl",
+      "corrected_summary": "results\\task3_grpo\\normalization_dr_grpo_train_summary.json",
+      "attempted_updates": 8,
+      "optimizer_updates": 8,
+      "updates_with_valid_policy_tokens": 7,
+      "updates_without_valid_policy_tokens": 1,
+      "zero_valid_policy_token_update_ids": [
+        5
+      ],
+      "total_generated_tokens": 9092,
+      "total_valid_policy_tokens": 5508,
+      "retained_policy_token_fraction": 0.6058073031236252,
+      "old_values": {
+        "mean_sampled_kl": 6.399489816663498e-05,
+        "mean_entropy": 0.7522128150895863,
+        "mean_clip_fraction": 0.0,
+        "mean_ratio": 0.8750335912949653
+      },
+      "corrected_values": {
+        "mean_sampled_kl": 6.376172012155287e-05,
+        "mean_entropy": 0.825506532839354,
+        "mean_clip_fraction": 0.0,
+        "mean_ratio": 1.0000342930475699
+      }
+    }
+  ]
+}

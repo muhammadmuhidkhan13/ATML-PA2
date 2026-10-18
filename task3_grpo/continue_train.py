@@ -294,6 +294,38 @@ def _weighted_token_mean(
     return float(weighted_sum / token_count)
 
 
+def _valid_token_weighted_mean(
+    values,
+    valid_token_counts,
+):
+    """Aggregate token diagnostics over all valid response tokens."""
+    if len(values) != len(valid_token_counts):
+        raise ValueError(
+            "values and valid_token_counts must "
+            "have identical lengths"
+        )
+
+    weighted_sum = sum(
+        float(value) * float(token_count)
+        for value, token_count in zip(
+            values,
+            valid_token_counts,
+        )
+        if float(token_count) > 0
+    )
+
+    total_valid_tokens = sum(
+        float(token_count)
+        for token_count in valid_token_counts
+        if float(token_count) > 0
+    )
+
+    return _weighted_token_mean(
+        weighted_sum,
+        total_valid_tokens,
+    )
+
+
 def run_grpo(
     config_path: str,
     output: str | None = None,
@@ -438,6 +470,7 @@ def run_grpo(
     run_entropies = []
     run_clip_fractions = []
     run_ratio_means = []
+    run_valid_token_counts = []
     run_grad_norms = []
     run_response_lengths = []
     run_truncation_rates = []
@@ -1043,6 +1076,9 @@ def run_grpo(
         run_ratio_means.append(
             mean_ratio
         )
+        run_valid_token_counts.append(
+            float(valid_token_total)
+        )
         run_grad_norms.append(
             mean_grad_norm
         )
@@ -1127,6 +1163,55 @@ def run_grpo(
         "total_generated_tokens": int(
             total_generated_tokens
         ),
+        "attempted_updates": int(
+            selected_updates
+        ),
+        "updates_with_valid_policy_tokens": int(
+            sum(
+                token_count > 0
+                for token_count
+                in run_valid_token_counts
+            )
+        ),
+        "updates_without_valid_policy_tokens": int(
+            sum(
+                token_count <= 0
+                for token_count
+                in run_valid_token_counts
+            )
+        ),
+        "zero_valid_policy_token_update_ids": [
+            update_index + 1
+            for update_index, token_count
+            in enumerate(
+                run_valid_token_counts
+            )
+            if token_count <= 0
+        ],
+        "total_valid_policy_tokens": int(
+            sum(run_valid_token_counts)
+        ),
+        "retained_policy_token_fraction": (
+            float(
+                sum(run_valid_token_counts)
+                / total_generated_tokens
+            )
+            if total_generated_tokens > 0
+            else 0.0
+        ),
+        "token_metric_aggregation": {
+            "method": (
+                "global valid-response-token "
+                "weighted mean"
+            ),
+            "weight_field": (
+                "valid_policy_tokens"
+            ),
+            "zero_valid_token_updates": (
+                "excluded from token-level "
+                "metric means"
+            ),
+        },
         "mean_reward": _safe_mean(
             run_rewards
         ),
@@ -1153,19 +1238,29 @@ def run_grpo(
         "mean_kl_penalty": _safe_mean(
             run_kl_penalties
         ),
-        "mean_sampled_kl": _safe_mean(
-            run_sampled_kls
-        ),
-        "mean_entropy": _safe_mean(
-            run_entropies
-        ),
-        "mean_clip_fraction": (
-            _safe_mean(
-                run_clip_fractions
+        "mean_sampled_kl": (
+            _valid_token_weighted_mean(
+                run_sampled_kls,
+                run_valid_token_counts,
             )
         ),
-        "mean_ratio": _safe_mean(
-            run_ratio_means
+        "mean_entropy": (
+            _valid_token_weighted_mean(
+                run_entropies,
+                run_valid_token_counts,
+            )
+        ),
+        "mean_clip_fraction": (
+            _valid_token_weighted_mean(
+                run_clip_fractions,
+                run_valid_token_counts,
+            )
+        ),
+        "mean_ratio": (
+            _valid_token_weighted_mean(
+                run_ratio_means,
+                run_valid_token_counts,
+            )
         ),
         "mean_gradient_norm": (
             _safe_mean(

@@ -27,10 +27,10 @@
   "mean_loss": -0.06141631216742098,
   "mean_policy_loss": -0.061417332570999864,
   "mean_kl_penalty": 1.0185358139835898e-05,
-  "mean_sampled_kl": 0.00018752153330834452,
-  "mean_entropy": 0.7750872024469886,
+  "mean_sampled_kl": 0.0001228126074486852,
+  "mean_entropy": 0.9395078844356292,
   "mean_clip_fraction": 0.0,
-  "mean_ratio": 0.8001085904918946,
+  "mean_ratio": 1.0000672341416832,
   "mean_gradient_norm": 0.28450579196214676,
   "max_gradient_norm": 1.2375003099441528,
   "mean_response_length": 298.275,
@@ -39,5 +39,28 @@
   "wall_clock_seconds": 1393.5955060789997,
   "peak_vram_gib": 5.764673233032227,
   "train_log": "results/task3_grpo/standard_train_log.jsonl",
-  "train_generations": "results/task3_grpo/standard_train_generations.jsonl"
+  "train_generations": "results/task3_grpo/standard_train_generations.jsonl",
+  "pre_correction_token_metrics": {
+    "mean_sampled_kl": 0.00018752153330834452,
+    "mean_entropy": 0.7750872024469886,
+    "mean_clip_fraction": 0.0,
+    "mean_ratio": 0.8001085904918946
+  },
+  "attempted_updates": 20,
+  "updates_with_valid_policy_tokens": 16,
+  "updates_without_valid_policy_tokens": 4,
+  "zero_valid_policy_token_update_ids": [
+    5,
+    13,
+    15,
+    17
+  ],
+  "total_valid_policy_tokens": 11062,
+  "retained_policy_token_fraction": 0.4635822646886263,
+  "token_metric_aggregation": {
+    "method": "global valid-response-token weighted mean",
+    "weight_field": "valid_policy_tokens",
+    "zero_valid_token_updates": "excluded from token-level metric means",
+    "manual_alignment": "Entropy, sampled KL, clip fraction, and ratio are aggregated over valid response tokens."
+  }
 }
