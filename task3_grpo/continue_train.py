@@ -326,12 +326,75 @@ def _valid_token_weighted_mean(
     )
 
 
+def resolve_grpo_stop_policy(
+    requested_updates,
+    stop_rule,
+    max_rollout_attempts=None,
+):
+    """Resolve explicit stopping targets for GRPO training."""
+    requested_updates = int(requested_updates)
+    if requested_updates < 1:
+        raise ValueError(
+            "The number of GRPO updates must be at least one."
+        )
+
+    if stop_rule not in {
+        "effective_optimizer_updates",
+        "rollout_attempts",
+    }:
+        raise ValueError(
+            f"Unknown stop_rule={stop_rule!r}"
+        )
+
+    if stop_rule == "rollout_attempts":
+        requested_optimizer_updates = None
+        requested_rollout_attempts = requested_updates
+        attempt_cap = requested_updates
+    else:
+        requested_optimizer_updates = requested_updates
+        requested_rollout_attempts = None
+        attempt_cap = int(
+            max_rollout_attempts
+            if max_rollout_attempts is not None
+            else max(requested_updates * 2, requested_updates + 10)
+        )
+        if attempt_cap < requested_updates:
+            raise ValueError(
+                "max_rollout_attempts must be at least the requested "
+                "number of effective optimizer updates."
+            )
+
+    return {
+        "stop_rule": stop_rule,
+        "requested_optimizer_updates": requested_optimizer_updates,
+        "requested_rollout_attempts": requested_rollout_attempts,
+        "max_rollout_attempts": attempt_cap,
+    }
+
+
+def should_continue_grpo(
+    stop_rule,
+    requested_optimizer_updates,
+    requested_rollout_attempts,
+    rollout_attempts,
+    optimizer_updates,
+):
+    """Return whether another rollout attempt is required."""
+    if stop_rule == "effective_optimizer_updates":
+        return optimizer_updates < requested_optimizer_updates
+    if stop_rule == "rollout_attempts":
+        return rollout_attempts < requested_rollout_attempts
+    raise ValueError(f"Unknown stop_rule={stop_rule!r}")
+
+
 def run_grpo(
     config_path: str,
     output: str | None = None,
     updates: int | None = None,
     loss_type: str = "grpo",
     run_name: str = "standard",
+    stop_rule: str = "effective_optimizer_updates",
+    max_rollout_attempts: int | None = None,
 ):
     bundle = prepare_grpo_continuation(
         config_path
@@ -354,11 +417,11 @@ def run_grpo(
         else updates
     )
 
-    if selected_updates < 1:
-        raise ValueError(
-            "The number of GRPO updates must be "
-            "at least one."
-        )
+    stop_policy = resolve_grpo_stop_policy(
+        selected_updates,
+        stop_rule,
+        max_rollout_attempts,
+    )
 
     if loss_type not in {
         "grpo",
@@ -459,6 +522,8 @@ def run_grpo(
 
     total_generated_tokens = 0
     optimizer_updates = 0
+    rollout_attempts = 0
+    zero_valid_token_attempts = 0
 
     run_rewards = []
     run_group_stds = []
@@ -478,9 +543,24 @@ def run_grpo(
 
     prompt_cursor = 0
 
-    for update_index in range(
-        selected_updates
+    while should_continue_grpo(
+        stop_policy["stop_rule"],
+        stop_policy["requested_optimizer_updates"],
+        stop_policy["requested_rollout_attempts"],
+        rollout_attempts,
+        optimizer_updates,
     ):
+        if rollout_attempts >= stop_policy["max_rollout_attempts"]:
+            raise RuntimeError(
+                "GRPO stopped at the rollout-attempt safety cap "
+                f"({stop_policy['max_rollout_attempts']}) before reaching "
+                f"{selected_updates} effective optimizer updates; "
+                f"optimizer_updates={optimizer_updates}, "
+                f"zero_valid_token_attempts={zero_valid_token_attempts}."
+            )
+
+        update_index = rollout_attempts
+        rollout_attempts += 1
         update_rollouts = []
         update_group_stds = []
         update_uninformative = []
@@ -652,6 +732,7 @@ def run_grpo(
                 {
                     "run_name": run_name,
                     "update": update_index + 1,
+                    "rollout_attempt": update_index + 1,
                     "loss_type": loss_type,
                     "prompt_id": rollout[
                         "prompt_id"
@@ -707,9 +788,21 @@ def run_grpo(
         clip_weighted_sum = 0.0
         ratio_weighted_sum = 0.0
         valid_token_total = 0.0
+        valid_policy_tokens_for_attempt = int(
+            sum(
+                rollout["effective_response_mask"].sum().item()
+                for rollout in update_rollouts
+            )
+        )
+        optimizer_step_performed = (
+            valid_policy_tokens_for_attempt > 0
+        )
+
+        if not optimizer_step_performed:
+            zero_valid_token_attempts += 1
 
         for epoch_index in range(
-            policy_epochs
+            policy_epochs if optimizer_step_performed else 0
         ):
             optimizer.zero_grad(
                 set_to_none=True
@@ -844,19 +937,20 @@ def run_grpo(
                         * valid_tokens
                     )
 
-            grad_norm = (
-                torch.nn.utils.clip_grad_norm_(
-                    parameters,
-                    max_grad_norm,
+            if optimizer_step_performed:
+                grad_norm = (
+                    torch.nn.utils.clip_grad_norm_(
+                        parameters,
+                        max_grad_norm,
+                    )
                 )
-            )
 
-            optimizer.step()
-            optimizer_updates += 1
+                optimizer.step()
+                optimizer_updates += 1
 
-            epoch_grad_norms.append(
-                float(grad_norm.detach().item())
-            )
+                epoch_grad_norms.append(
+                    float(grad_norm.detach().item())
+                )
 
         update_rewards = [
             float(item["reward"])
@@ -947,7 +1041,22 @@ def run_grpo(
         record = {
             "run_name": run_name,
             "update": update_index + 1,
-            "updates": selected_updates,
+            "rollout_attempt": update_index + 1,
+            "optimizer_update": (
+                optimizer_updates
+                if optimizer_step_performed
+                else None
+            ),
+            "optimizer_step_performed": (
+                optimizer_step_performed
+            ),
+            "stop_rule": stop_policy["stop_rule"],
+            "requested_optimizer_updates": (
+                stop_policy["requested_optimizer_updates"]
+            ),
+            "requested_rollout_attempts": (
+                stop_policy["requested_rollout_attempts"]
+            ),
             "loss_type": loss_type,
             "prompt_ids": list(
                 dict.fromkeys(
@@ -1029,8 +1138,8 @@ def run_grpo(
 
         print(
             f"[{run_name}] "
-            f"update={record['update']}/"
-            f"{selected_updates} "
+            f"attempt={record['rollout_attempt']} "
+            f"optimizer_updates={optimizer_updates} "
             f"reward={record['mean_reward']:.4f} "
             f"group_std="
             f"{record['mean_group_reward_std']:.4f} "
@@ -1092,6 +1201,26 @@ def run_grpo(
             eos_rate
         )
 
+        if (
+            should_continue_grpo(
+                stop_policy["stop_rule"],
+                stop_policy["requested_optimizer_updates"],
+                stop_policy["requested_rollout_attempts"],
+                rollout_attempts,
+                optimizer_updates,
+            )
+            and rollout_attempts
+            >= stop_policy["max_rollout_attempts"]
+        ):
+            raise RuntimeError(
+                "GRPO reached the rollout-attempt safety cap "
+                f"({stop_policy['max_rollout_attempts']}) before reaching "
+                f"the requested stopping rule; "
+                f"optimizer_updates={optimizer_updates}, "
+                f"rollout_attempts={rollout_attempts}, "
+                f"zero_valid_token_attempts={zero_valid_token_attempts}."
+            )
+
     out.mkdir(
         parents=True,
         exist_ok=True,
@@ -1123,9 +1252,22 @@ def run_grpo(
         ),
         "policy_output": str(out_spec),
         "loss_type": loss_type,
-        "updates": selected_updates,
+        "stop_rule": stop_policy["stop_rule"],
+        "requested_optimizer_updates": (
+            stop_policy["requested_optimizer_updates"]
+        ),
+        "requested_rollout_attempts": (
+            stop_policy["requested_rollout_attempts"]
+        ),
+        "max_rollout_attempts": (
+            stop_policy["max_rollout_attempts"]
+        ),
+        "rollout_attempts": int(rollout_attempts),
         "optimizer_updates": (
             optimizer_updates
+        ),
+        "zero_valid_token_attempts": (
+            zero_valid_token_attempts
         ),
         "prompts_per_update": (
             prompts_per_update
@@ -1164,7 +1306,7 @@ def run_grpo(
             total_generated_tokens
         ),
         "attempted_updates": int(
-            selected_updates
+            rollout_attempts
         ),
         "updates_with_valid_policy_tokens": int(
             sum(
@@ -1180,7 +1322,7 @@ def run_grpo(
                 in run_valid_token_counts
             )
         ),
-        "zero_valid_policy_token_update_ids": [
+        "zero_valid_policy_token_attempt_ids": [
             update_index + 1
             for update_index, token_count
             in enumerate(
@@ -1363,6 +1505,20 @@ def main():
         default="standard",
     )
 
+    ap.add_argument(
+        "--stop-rule",
+        choices=[
+            "effective_optimizer_updates",
+            "rollout_attempts",
+        ],
+        default="effective_optimizer_updates",
+    )
+
+    ap.add_argument(
+        "--max-rollout-attempts",
+        type=int,
+    )
+
     args = ap.parse_args()
 
     run_grpo(
@@ -1371,6 +1527,8 @@ def main():
         updates=args.updates,
         loss_type=args.loss_type,
         run_name=args.run_name,
+        stop_rule=args.stop_rule,
+        max_rollout_attempts=args.max_rollout_attempts,
     )
 
 

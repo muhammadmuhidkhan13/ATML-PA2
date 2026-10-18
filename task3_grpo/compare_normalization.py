@@ -245,7 +245,7 @@ def _run_or_load_training(
         f"{condition['loss_type']}"
     )
     print(
-        f"Updates: {fork_updates}"
+        f"Rollout attempts: {fork_updates}"
     )
 
     summary = run_grpo(
@@ -258,6 +258,8 @@ def _run_or_load_training(
         run_name=condition[
             "run_name"
         ],
+        stop_rule="rollout_attempts",
+        max_rollout_attempts=fork_updates,
     )
 
     _clear_memory()
@@ -820,9 +822,19 @@ def build_comparison_row(
         "loss_type": condition[
             "loss_type"
         ],
-        "updates": training_summary[
-            "updates"
-        ],
+        "rollout_attempts": training_summary.get(
+            "rollout_attempts",
+            training_summary.get("updates"),
+        ),
+        "optimizer_updates": training_summary.get(
+            "optimizer_updates"
+        ),
+        "zero_valid_token_attempts": training_summary.get(
+            "zero_valid_token_attempts",
+            training_summary.get(
+                "updates_without_valid_policy_tokens"
+            ),
+        ),
         "train_mean_reward": (
             training_summary[
                 "mean_reward"
