@@ -1,0 +1,140 @@
+{
+  "status": "complete",
+  "version": "corrected_grpo",
+  "num_full_judgments": 1800,
+  "num_manual_audit_rows": 240,
+  "manual_ai_agreement_rate": 0.7,
+  "manual_ai_disagreements": 72,
+  "policies": [
+    "sft",
+    "dpo",
+    "ppo",
+    "grpo"
+  ],
+  "corrected_grpo_adapter_sha256": "e0f24a5663aa9aee0ad99ff8b49b48099795947c9539d86aa544621bdcbe178c",
+  "policy_metrics": [
+    {
+      "policy": "sft",
+      "num_examples": 450,
+      "num_safe": 250,
+      "num_unsafe": 200,
+      "safe_answer_rate": 0.568,
+      "safe_over_refusal_rate": 0.0,
+      "unsafe_compliance_rate": 0.0,
+      "justified_refusal_rate": 0.88,
+      "ambiguous_judge_rate": 0.0,
+      "mean_judge_confidence": 0.9998888888888888,
+      "response_length_mean": 108.08666666666667,
+      "response_length_std": 80.91578090829996,
+      "response_length_iqr": 124.25,
+      "generated_token_count": 48639
+    },
+    {
+      "policy": "dpo",
+      "num_examples": 450,
+      "num_safe": 250,
+      "num_unsafe": 200,
+      "safe_answer_rate": 0.556,
+      "safe_over_refusal_rate": 0.0,
+      "unsafe_compliance_rate": 0.0,
+      "justified_refusal_rate": 0.875,
+      "ambiguous_judge_rate": 0.0,
+      "mean_judge_confidence": 1.0,
+      "response_length_mean": 110.23333333333332,
+      "response_length_std": 82.0402678905643,
+      "response_length_iqr": 131.25,
+      "generated_token_count": 49605
+    },
+    {
+      "policy": "ppo",
+      "num_examples": 450,
+      "num_safe": 250,
+      "num_unsafe": 200,
+      "safe_answer_rate": 0.584,
+      "safe_over_refusal_rate": 0.0,
+      "unsafe_compliance_rate": 0.0,
+      "justified_refusal_rate": 0.89,
+      "ambiguous_judge_rate": 0.0,
+      "mean_judge_confidence": 0.9998888888888888,
+      "response_length_mean": 107.46888888888888,
+      "response_length_std": 79.99450070604776,
+      "response_length_iqr": 115.0,
+      "generated_token_count": 48361
+    },
+    {
+      "policy": "grpo",
+      "num_examples": 450,
+      "num_safe": 250,
+      "num_unsafe": 200,
+      "safe_answer_rate": 0.576,
+      "safe_over_refusal_rate": 0.0,
+      "unsafe_compliance_rate": 0.0,
+      "justified_refusal_rate": 0.88,
+      "ambiguous_judge_rate": 0.0,
+      "mean_judge_confidence": 0.9998888888888888,
+      "response_length_mean": 108.31111111111112,
+      "response_length_std": 80.43159197513326,
+      "response_length_iqr": 124.25,
+      "generated_token_count": 48740
+    }
+  ],
+  "manual_metrics": [
+    {
+      "source": "Manual audit",
+      "policy": "sft",
+      "num_records": 60,
+      "num_safe": 30,
+      "num_unsafe": 30,
+      "safe_answer_rate": 0.6333333333333333,
+      "safe_over_refusal_rate": 0.36666666666666664,
+      "unsafe_compliance_rate": 0.03333333333333333,
+      "justified_refusal_rate": 0.9666666666666667,
+      "ambiguous_rate": 0.0,
+      "mean_response_tokens": 109.36666666666666
+    },
+    {
+      "source": "Manual audit",
+      "policy": "dpo",
+      "num_records": 60,
+      "num_safe": 30,
+      "num_unsafe": 30,
+      "safe_answer_rate": 0.6,
+      "safe_over_refusal_rate": 0.4,
+      "unsafe_compliance_rate": 0.03333333333333333,
+      "justified_refusal_rate": 0.9666666666666667,
+      "ambiguous_rate": 0.0,
+      "mean_response_tokens": 107.5
+    },
+    {
+      "source": "Manual audit",
+      "policy": "ppo",
+      "num_records": 60,
+      "num_safe": 30,
+      "num_unsafe": 30,
+      "safe_answer_rate": 0.6333333333333333,
+      "safe_over_refusal_rate": 0.36666666666666664,
+      "unsafe_compliance_rate": 0.03333333333333333,
+      "justified_refusal_rate": 0.9666666666666667,
+      "ambiguous_rate": 0.0,
+      "mean_response_tokens": 108.9
+    },
+    {
+      "source": "Manual audit",
+      "policy": "grpo",
+      "num_records": 60,
+      "num_safe": 30,
+      "num_unsafe": 30,
+      "safe_answer_rate": 0.6333333333333333,
+      "safe_over_refusal_rate": 0.36666666666666664,
+      "unsafe_compliance_rate": 0.03333333333333333,
+      "justified_refusal_rate": 0.9666666666666667,
+      "ambiguous_rate": 0.0,
+      "mean_response_tokens": 110.33333333333333
+    }
+  ],
+  "source_files": {
+    "evaluation_summary": "corrected_final_evaluation_summary.json",
+    "policy_comparison": "corrected_final_evaluation_policy_comparison.csv",
+    "manual_audit": "manual_audit_sheet_corrected_grpo.csv"
+  }
+}

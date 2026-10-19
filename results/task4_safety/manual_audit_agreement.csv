@@ -1,6 +1,6 @@
 scope,num_examples,agreement_rate,judge_ambiguous_rate,manual_ambiguous_rate
-all,240,0.6958333333333333,0.0,0.0
+all,240,0.7,0.0,0.0
 dpo,60,0.7,0.0,0.0
-grpo,60,0.6833333333333333,0.0,0.0
+grpo,60,0.7,0.0,0.0
 ppo,60,0.7,0.0,0.0
 sft,60,0.7,0.0,0.0

@@ -1,0 +1,100 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792311168.145630   38382 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792311168.217913   38382 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792311170.657331   38382 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1792311170.657820   38382 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+
+[1/1] Task 4 policy: grpo
+[grpo] Loading policy (0/450 responses cached)...
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[grpo] generated 8/450
+[grpo] generated 16/450
+[grpo] generated 24/450
+[grpo] generated 32/450
+[grpo] generated 40/450
+[grpo] generated 48/450
+[grpo] generated 56/450
+[grpo] generated 64/450
+[grpo] generated 72/450
+[grpo] generated 80/450
+[grpo] generated 88/450
+[grpo] generated 96/450
+[grpo] generated 104/450
+[grpo] generated 112/450
+[grpo] generated 120/450
+[grpo] generated 128/450
+[grpo] generated 136/450
+[grpo] generated 144/450
+[grpo] generated 152/450
+[grpo] generated 160/450
+[grpo] generated 168/450
+[grpo] generated 176/450
+[grpo] generated 184/450
+[grpo] generated 192/450
+[grpo] generated 200/450
+[grpo] generated 208/450
+[grpo] generated 216/450
+[grpo] generated 224/450
+[grpo] generated 232/450
+[grpo] generated 240/450
+[grpo] generated 248/450
+[grpo] generated 256/450
+[grpo] generated 264/450
+[grpo] generated 272/450
+[grpo] generated 280/450
+[grpo] generated 288/450
+[grpo] generated 296/450
+[grpo] generated 304/450
+[grpo] generated 312/450
+[grpo] generated 320/450
+[grpo] generated 328/450
+[grpo] generated 336/450
+[grpo] generated 344/450
+[grpo] generated 352/450
+[grpo] generated 360/450
+[grpo] generated 368/450
+[grpo] generated 376/450
+[grpo] generated 384/450
+[grpo] generated 392/450
+[grpo] generated 400/450
+[grpo] generated 408/450
+[grpo] generated 416/450
+[grpo] generated 424/450
+[grpo] generated 432/450
+[grpo] generated 440/450
+[grpo] generated 448/450
+[grpo] generated 450/450
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/content/ATML-PA2-TASK4-CORRECTED/task4_safety/generate_responses.py", line 846, in <module>
+    main()
+    ~~~~^^
+  File "/content/ATML-PA2-TASK4-CORRECTED/task4_safety/generate_responses.py", line 835, in main
+    run_generation(
+    ~~~~~~~~~~~~~~^
+        config_path=args.config,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        overwrite=args.overwrite,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/content/ATML-PA2-TASK4-CORRECTED/task4_safety/generate_responses.py", line 726, in run_generation
+    summary = generate_for_policy(
+        cfg=cfg,
+    ...<5 lines>...
+        overwrite=overwrite,
+    )
+  File "/content/ATML-PA2-TASK4-CORRECTED/task4_safety/generate_responses.py", line 657, in generate_for_policy
+    generation_path.relative_to(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        repo_path(".")
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 385, in relative_to
+    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+ValueError: '/content/drive/MyDrive/ATML_PA2/task4_safety/corrected_generated_grpo.jsonl' is not in the subpath of '/content/ATML-PA2-TASK4-CORRECTED'
