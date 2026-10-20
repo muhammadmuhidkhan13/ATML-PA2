@@ -1,0 +1,208 @@
+{
+  "device": "cpu",
+  "optimizer": {
+    "class": "torch.optim.AdamW",
+    "learning_rate": 5e-06,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epsilon": 1e-08,
+    "weight_decay": 0.0,
+    "max_grad_norm": 1.0,
+    "zero_grad_set_to_none": true,
+    "scheduler": null
+  },
+  "optimizer_controls": [
+    {
+      "parameter_before": [
+        1.0,
+        -2.0
+      ],
+      "parameter_after": [
+        1.0,
+        -2.0
+      ],
+      "parameter_l2_change": 0.0,
+      "max_abs_parameter_change": 0.0,
+      "optimizer_step_before": null,
+      "optimizer_step_after": 1.0,
+      "first_moment_change": null,
+      "second_moment_change": null,
+      "optimizer_state_before": {
+        "step": null,
+        "exp_avg": null,
+        "exp_avg_sq": null
+      },
+      "optimizer_state_after": {
+        "step": 1.0,
+        "exp_avg": [
+          0.0,
+          0.0
+        ],
+        "exp_avg_sq": [
+          0.0,
+          0.0
+        ]
+      },
+      "weight_decay_contributed": false,
+      "case": "fresh_optimizer_explicit_zero_gradient",
+      "gradient_kind": "explicit_zero_tensor",
+      "momentum_contributed": false
+    },
+    {
+      "parameter_before": [
+        1.0,
+        -2.0
+      ],
+      "parameter_after": [
+        1.0,
+        -2.0
+      ],
+      "parameter_l2_change": 0.0,
+      "max_abs_parameter_change": 0.0,
+      "optimizer_step_before": null,
+      "optimizer_step_after": null,
+      "first_moment_change": null,
+      "second_moment_change": null,
+      "optimizer_state_before": {
+        "step": null,
+        "exp_avg": null,
+        "exp_avg_sq": null
+      },
+      "optimizer_state_after": {
+        "step": null,
+        "exp_avg": null,
+        "exp_avg_sq": null
+      },
+      "weight_decay_contributed": false,
+      "case": "fresh_optimizer_grad_none",
+      "gradient_kind": "none",
+      "momentum_contributed": false
+    },
+    {
+      "parameter_before": [
+        0.9999949932098389,
+        -1.9999949932098389
+      ],
+      "parameter_after": [
+        0.9999916553497314,
+        -1.9999916553497314
+      ],
+      "parameter_l2_change": 4.720447122963378e-06,
+      "max_abs_parameter_change": 3.337860107421875e-06,
+      "optimizer_step_before": 1.0,
+      "optimizer_step_after": 2.0,
+      "first_moment_change": 0.0360555114321318,
+      "second_moment_change": 9.849145559643525e-06,
+      "optimizer_state_before": {
+        "step": 1.0,
+        "exp_avg": [
+          0.20000000298023224,
+          -0.30000001192092896
+        ],
+        "exp_avg_sq": [
+          0.004000000189989805,
+          0.008999999612569809
+        ]
+      },
+      "optimizer_state_after": {
+        "step": 2.0,
+        "exp_avg": [
+          0.18000000715255737,
+          -0.27000001072883606
+        ],
+        "exp_avg_sq": [
+          0.003996000159531832,
+          0.008990999311208725
+        ]
+      },
+      "weight_decay_contributed": false,
+      "case": "established_momentum_explicit_zero_gradient",
+      "gradient_kind": "explicit_zero_tensor",
+      "momentum_contributed": true
+    },
+    {
+      "parameter_before": [
+        0.9999949932098389,
+        -1.9999949932098389
+      ],
+      "parameter_after": [
+        0.9999949932098389,
+        -1.9999949932098389
+      ],
+      "parameter_l2_change": 0.0,
+      "max_abs_parameter_change": 0.0,
+      "optimizer_step_before": 1.0,
+      "optimizer_step_after": 1.0,
+      "first_moment_change": 0.0,
+      "second_moment_change": 0.0,
+      "optimizer_state_before": {
+        "step": 1.0,
+        "exp_avg": [
+          0.20000000298023224,
+          -0.30000001192092896
+        ],
+        "exp_avg_sq": [
+          0.004000000189989805,
+          0.008999999612569809
+        ]
+      },
+      "optimizer_state_after": {
+        "step": 1.0,
+        "exp_avg": [
+          0.20000000298023224,
+          -0.30000001192092896
+        ],
+        "exp_avg_sq": [
+          0.004000000189989805,
+          0.008999999612569809
+        ]
+      },
+      "weight_decay_contributed": false,
+      "case": "established_momentum_grad_none",
+      "gradient_kind": "none",
+      "momentum_contributed": false
+    }
+  ],
+  "production_mask_test": [
+    {
+      "case": "nonzero_mask",
+      "mask": [
+        [
+          1.0,
+          1.0,
+          1.0
+        ]
+      ],
+      "loss": -1.197119951248169,
+      "loss_requires_grad": true,
+      "gradient_is_none": false,
+      "gradient": 0.022119920700788498,
+      "valid_token_count": [
+        3.0
+      ],
+      "sampled_kl": 0.25,
+      "clip_fraction": 1.0
+    },
+    {
+      "case": "all_zero_mask_from_truncation_utility",
+      "mask": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "loss": 0.0,
+      "loss_requires_grad": true,
+      "gradient_is_none": false,
+      "gradient": 0.0,
+      "valid_token_count": [
+        0.0
+      ],
+      "sampled_kl": 0.0,
+      "clip_fraction": 0.0
+    }
+  ]
+}

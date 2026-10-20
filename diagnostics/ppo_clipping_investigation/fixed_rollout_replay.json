@@ -1,0 +1,100 @@
+{
+  "config": "configs/ppo.yaml",
+  "cache": "cached/ppo_rollout.pt",
+  "row": {
+    "prompt_id": "d407599fef051a44d505c8439c3c6a6fb7d8fb6658384a4c391e9c2f2146f16d",
+    "source_index": 124
+  },
+  "note": "No optimizer.step() and no gradient clipping were called.",
+  "epsilon_results": [
+    {
+      "epsilon": 0.05,
+      "ratio_min": 0.9090412855148315,
+      "ratio_max": 1.2221704721450806,
+      "ratio_quantiles": {
+        "q00": 0.9090412855148315,
+        "q01": 0.9266988039016724,
+        "q05": 0.9549395442008972,
+        "q50": 1.000000238418579,
+        "q95": 1.0486971139907837,
+        "q99": 1.0831738710403442,
+        "q100": 1.2221704721450806
+      },
+      "outside_005": 0.09584664553403854,
+      "outside_020": 0.00319488812237978,
+      "outside_050": 0.0,
+      "configured_clip_fraction": 0.09584664553403854,
+      "unclipped_policy_loss": -0.0012021871516481042,
+      "clipped_policy_loss": -0.000292109209112823,
+      "final_policy_loss": 0.00019492280262056738,
+      "gradient_norm_before_clip": 0.20708036422729492
+    },
+    {
+      "epsilon": 0.2,
+      "ratio_min": 0.9090412855148315,
+      "ratio_max": 1.2221704721450806,
+      "ratio_quantiles": {
+        "q00": 0.9090412855148315,
+        "q01": 0.9266988039016724,
+        "q05": 0.9549395442008972,
+        "q50": 1.000000238418579,
+        "q95": 1.0486971139907837,
+        "q99": 1.0831738710403442,
+        "q100": 1.2221704721450806
+      },
+      "outside_005": 0.09584664553403854,
+      "outside_020": 0.00319488812237978,
+      "outside_050": 0.0,
+      "configured_clip_fraction": 0.00319488812237978,
+      "unclipped_policy_loss": -0.0012021871516481042,
+      "clipped_policy_loss": -0.0011296226875856519,
+      "final_policy_loss": -0.0011296226875856519,
+      "gradient_norm_before_clip": 0.22402635216712952
+    },
+    {
+      "epsilon": 0.5,
+      "ratio_min": 0.9090412855148315,
+      "ratio_max": 1.2221704721450806,
+      "ratio_quantiles": {
+        "q00": 0.9090412855148315,
+        "q01": 0.9266988039016724,
+        "q05": 0.9549395442008972,
+        "q50": 1.000000238418579,
+        "q95": 1.0486971139907837,
+        "q99": 1.0831738710403442,
+        "q100": 1.2221704721450806
+      },
+      "outside_005": 0.09584664553403854,
+      "outside_020": 0.00319488812237978,
+      "outside_050": 0.0,
+      "configured_clip_fraction": 0.0,
+      "unclipped_policy_loss": -0.0012021871516481042,
+      "clipped_policy_loss": -0.0012021871516481042,
+      "final_policy_loss": -0.001202187268063426,
+      "gradient_norm_before_clip": 0.22942543029785156
+    }
+  ],
+  "pairwise_gradient_comparison": [
+    {
+      "epsilon_a": 0.05,
+      "epsilon_b": 0.2,
+      "max_abs_gradient_difference": 0.0035309214144945145,
+      "relative_l2_difference": 0.41469186544418335,
+      "cosine_similarity": 0.9236144423484802
+    },
+    {
+      "epsilon_a": 0.05,
+      "epsilon_b": 0.5,
+      "max_abs_gradient_difference": 0.0035706483758985996,
+      "relative_l2_difference": 0.48477303981781006,
+      "cosine_similarity": 0.8991965055465698
+    },
+    {
+      "epsilon_a": 0.2,
+      "epsilon_b": 0.5,
+      "max_abs_gradient_difference": 0.002348843263462186,
+      "relative_l2_difference": 0.22738821804523468,
+      "cosine_similarity": 0.9750391840934753
+    }
+  ]
+}

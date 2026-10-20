@@ -1,0 +1,32 @@
+{
+  "name": "kl_0p1_eval",
+  "config": "configs/ppo.yaml",
+  "adapter": "outputs/task2_ppo/kl_ablation/kl_0p1",
+  "dataset": "data/rl_prompt_pool_eval.jsonl",
+  "seed": 6304,
+  "num_evaluation_prompts": 200,
+  "evaluation_batch_size": 1,
+  "max_prompt_length": 256,
+  "max_response_length": 768,
+  "generation": {
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "do_sample": true
+  },
+  "sampled_kl_token_mean": -9.403151522816451e-06,
+  "entropy_token_mean": 0.8098944847267167,
+  "generated_token_count": 59445,
+  "reward_model_score_mean": 1.3793122482299804,
+  "reward_model_score_std": 1.5991542086857757,
+  "response_length_mean": 297.225,
+  "response_length_std": 251.8562176619827,
+  "response_length_iqr": 391.0,
+  "terminated_with_eos_rate": 0.89,
+  "truncation_rate": 0.11,
+  "reward_scoring_skipped": false,
+  "wall_clock_seconds": 4804.6262579,
+  "resumable_evaluation": true,
+  "separate_reward_scoring_phase": true,
+  "generations": "results\\task2_ppo\\kl_0p1_eval_generations.jsonl",
+  "qualitative_candidates": "results\\task2_ppo\\kl_0p1_eval_qualitative_candidates.json"
+}

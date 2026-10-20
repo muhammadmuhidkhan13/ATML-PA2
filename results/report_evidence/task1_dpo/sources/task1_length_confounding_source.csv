@@ -1,0 +1,7 @@
+policy,stratum,preference_accuracy,num_pairs,response_length_mean,response_length_std,word_limit_compliance_rate,num_word_limit_prompts
+standard,preferred_longer,0.47435897435897434,78,43.5,21.369370603740297,0.7,10
+standard,length_matched,0.5625,80,43.5,21.369370603740297,0.7,10
+standard,rejected_longer,0.6455696202531646,79,43.5,21.369370603740297,0.7,10
+length_balanced,preferred_longer,0.4230769230769231,78,44.6,21.157504578754082,0.7,10
+length_balanced,length_matched,0.6125,80,44.6,21.157504578754082,0.7,10
+length_balanced,rejected_longer,0.7848101265822784,79,44.6,21.157504578754082,0.7,10

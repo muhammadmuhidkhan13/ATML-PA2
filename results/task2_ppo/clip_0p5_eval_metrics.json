@@ -1,0 +1,32 @@
+{
+  "name": "clip_0p5_eval",
+  "config": "configs/ppo.yaml",
+  "adapter": "outputs/task2_ppo/clipping/clip_0p5",
+  "dataset": "data/rl_prompt_pool_eval.jsonl",
+  "seed": 6304,
+  "num_evaluation_prompts": 200,
+  "evaluation_batch_size": 1,
+  "max_prompt_length": 256,
+  "max_response_length": 768,
+  "generation": {
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "do_sample": true
+  },
+  "sampled_kl_token_mean": -9.41005526159733e-06,
+  "entropy_token_mean": 0.8348635642115068,
+  "generated_token_count": 60570,
+  "reward_model_score_mean": 1.5081197261810302,
+  "reward_model_score_std": 1.4253801108655983,
+  "response_length_mean": 302.85,
+  "response_length_std": 253.9696783082579,
+  "response_length_iqr": 447.0,
+  "terminated_with_eos_rate": 0.92,
+  "truncation_rate": 0.08,
+  "reward_scoring_skipped": false,
+  "wall_clock_seconds": 4386.338220699996,
+  "resumable_evaluation": true,
+  "separate_reward_scoring_phase": true,
+  "generations": "results\\task2_ppo\\clip_0p5_eval_generations.jsonl",
+  "qualitative_candidates": "results\\task2_ppo\\clip_0p5_eval_qualitative_candidates.json"
+}

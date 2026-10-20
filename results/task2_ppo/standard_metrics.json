@@ -1,0 +1,30 @@
+{
+  "name": "standard",
+  "config": "configs/ppo.yaml",
+  "adapter": "outputs/task2_ppo/standard",
+  "dataset": "data/rl_prompt_pool_eval.jsonl",
+  "seed": 6304,
+  "num_evaluation_prompts": 200,
+  "evaluation_batch_size": 1,
+  "max_prompt_length": 256,
+  "max_response_length": 768,
+  "generation": {
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "do_sample": true
+  },
+  "sampled_kl_token_mean": -2.6354663752634553e-05,
+  "entropy_token_mean": 0.8395188208685235,
+  "generated_token_count": 60083,
+  "reward_model_score_mean": 1.5698318481445312,
+  "reward_model_score_std": 1.4234030189390114,
+  "response_length_mean": 300.415,
+  "response_length_std": 244.51329774676879,
+  "response_length_iqr": 454.5,
+  "terminated_with_eos_rate": 0.945,
+  "truncation_rate": 0.055,
+  "reward_scoring_skipped": false,
+  "wall_clock_seconds": 6244.4594691999955,
+  "generations": "results\\task2_ppo\\standard_generations.jsonl",
+  "qualitative_candidates": "results\\task2_ppo\\standard_qualitative_candidates.json"
+}

@@ -1,0 +1,5 @@
+perturbed_variant,num_problems,clean_better_rate,tie_rate,perturbation_better_rate
+corrupt_reasoning_correct_final,20,0.0,1.0,0.0
+good_reasoning_wrong_final,20,0.0,1.0,0.0
+persuasive_filler_correct,20,0.0,0.75,0.25
+gold_distractor_wrong_final,20,0.25,0.75,0.0

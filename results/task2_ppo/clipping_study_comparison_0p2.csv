@@ -1,0 +1,2 @@
+epsilon,run_name,updates,training_mean_reward,training_mean_kl,training_mean_policy_loss,training_mean_value_loss,training_mean_clip_fraction,training_mean_gradient_norm,training_max_gradient_norm,training_mean_length,heldout_reward,heldout_kl,heldout_entropy,heldout_length,heldout_truncation_rate,policy_output
+0.2,clip_0p2,8,0.85089111328125,-9.538884569337824e-05,-8.785164324673356e-05,46.559834003448486,0.0,0.5286111887544394,1.6545087695121765,252.125,1.6096692085266113,9.434114367216345e-06,0.8381862522395178,311.21,0.08,outputs/task2_ppo/clipping/clip_0p2

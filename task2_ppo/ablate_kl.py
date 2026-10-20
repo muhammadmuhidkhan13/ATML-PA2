@@ -513,6 +513,36 @@ def run_kl_ablation(
             condition_generations[
                 beta
             ] = generations
+        else:
+            evaluation_name = (
+                f"{run_name}_eval"
+            )
+
+            metrics_path = (
+                results_dir
+                / f"{evaluation_name}_metrics.json"
+            )
+
+            if not metrics_path.exists():
+                raise FileNotFoundError(
+                    "Cannot skip evaluation because the "
+                    "expected metrics file does not exist: "
+                    f"{metrics_path}"
+                )
+
+            evaluation_metrics = load_json(
+                metrics_path
+            )
+
+            generations = (
+                load_condition_generations(
+                    evaluation_metrics
+                )
+            )
+
+            condition_generations[
+                beta
+            ] = generations
 
         condition_row = {
             "kl_beta": beta,

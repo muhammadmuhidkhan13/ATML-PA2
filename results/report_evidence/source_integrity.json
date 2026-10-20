@@ -1,0 +1,16 @@
+{
+  "package_root": "C:\\Users\\HP\\Desktop\\ATML\\ATML-PA2-LLM-PostTraining\\results\\report_evidence",
+  "files_excluding_integrity_manifests": 97,
+  "replacement_policy": {
+    "task3": "corrected artifacts only",
+    "task4": "corrected artifacts only"
+  },
+  "generated_figures": [
+    "task1_dpo_beta_tradeoff",
+    "task1_length_confounding",
+    "task2_cached_clipping_geometry",
+    "task5_policy_domain_comparison",
+    "task5_controlled_reward_diagnostic"
+  ],
+  "original_files_modified": false
+}

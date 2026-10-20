@@ -1,0 +1,30 @@
+{
+  "config": "configs/ppo.yaml",
+  "epsilons": [
+    0.2
+  ],
+  "fork_updates": 8,
+  "cache_analysis": null,
+  "matched_forks": [
+    {
+      "epsilon": 0.2,
+      "run_name": "clip_0p2",
+      "updates": 8,
+      "training_mean_reward": 0.85089111328125,
+      "training_mean_kl": -9.538884569337824e-05,
+      "training_mean_policy_loss": -8.785164324673356e-05,
+      "training_mean_value_loss": 46.559834003448486,
+      "training_mean_clip_fraction": 0.0,
+      "training_mean_gradient_norm": 0.5286111887544394,
+      "training_max_gradient_norm": 1.6545087695121765,
+      "training_mean_length": 252.125,
+      "heldout_reward": 1.6096692085266113,
+      "heldout_kl": 9.434114367216345e-06,
+      "heldout_entropy": 0.8381862522395178,
+      "heldout_length": 311.21,
+      "heldout_truncation_rate": 0.08,
+      "policy_output": "outputs/task2_ppo/clipping/clip_0p2"
+    }
+  ],
+  "wall_clock_seconds": 4950.841414900002
+}

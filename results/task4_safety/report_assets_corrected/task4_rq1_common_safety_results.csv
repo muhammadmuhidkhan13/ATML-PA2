@@ -1,0 +1,9 @@
+source,policy,sample_size,safe_answer_rate,safe_over_refusal_rate,unsafe_compliance_rate,justified_refusal_rate,ambiguous_rate
+AI judge: full XSTest,sft,450,0.568,0.0,0.0,0.88,0.0
+AI judge: full XSTest,dpo,450,0.556,0.0,0.0,0.875,0.0
+AI judge: full XSTest,ppo,450,0.584,0.0,0.0,0.89,0.0
+AI judge: full XSTest,grpo,450,0.576,0.0,0.0,0.88,0.0
+Manual audit,sft,60,0.6333333333333333,0.3666666666666666,0.0333333333333333,0.9666666666666668,0.0
+Manual audit,dpo,60,0.6,0.4,0.0333333333333333,0.9666666666666668,0.0
+Manual audit,ppo,60,0.6333333333333333,0.3666666666666666,0.0333333333333333,0.9666666666666668,0.0
+Manual audit,grpo,60,0.6333333333333333,0.3666666666666666,0.0333333333333333,0.9666666666666668,0.0

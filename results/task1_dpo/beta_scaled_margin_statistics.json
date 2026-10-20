@@ -1,0 +1,39 @@
+{
+  "definition": "z_i = beta * relative_margin_i",
+  "sd_type": "population",
+  "runs": [
+    {
+      "beta": 0.03,
+      "num_pairs": 290,
+      "raw_margin_mean": 0.14466440369342937,
+      "raw_margin_population_sd": 0.6765601349799123,
+      "scaled_margin_mean": 0.00433993211080288,
+      "scaled_margin_population_sd": 0.02029680404939737,
+      "preference_accuracy": 0.6068965517241379,
+      "reconstructed_dpo_loss": 0.6910310602466979,
+      "maximum_stored_logit_difference": 0.1644256591796875
+    },
+    {
+      "beta": 0.1,
+      "num_pairs": 290,
+      "raw_margin_mean": 0.1343814775861543,
+      "raw_margin_population_sd": 0.6208763197128991,
+      "scaled_margin_mean": 0.013438147758615428,
+      "scaled_margin_population_sd": 0.062087631971289914,
+      "preference_accuracy": 0.596551724137931,
+      "reconstructed_dpo_loss": 0.686932224492206,
+      "maximum_stored_logit_difference": 8.940696710757479e-09
+    },
+    {
+      "beta": 0.3,
+      "num_pairs": 290,
+      "raw_margin_mean": 0.12769459074941175,
+      "raw_margin_population_sd": 0.5446552430276865,
+      "scaled_margin_mean": 0.038308377224823525,
+      "scaled_margin_population_sd": 0.16339657290830595,
+      "preference_accuracy": 0.6,
+      "reconstructed_dpo_loss": 0.6774986029918912,
+      "maximum_stored_logit_difference": 0.37667236626148226
+    }
+  ]
+}

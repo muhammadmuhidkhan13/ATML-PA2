@@ -1,0 +1,5 @@
+Model,beta_KL,Reward,KL,Entropy,Length
+Standard PPO (20 updates),0.10,1.5698,-0.00002635,0.8395,300.42
+Fork (8 updates),0.00,1.4855,0.00002964,0.8256,293.56
+Fork (8 updates),0.10,1.3793,-0.00000940,0.8099,297.23
+Fork (8 updates),0.20,1.5430,-0.00000105,0.8366,299.60

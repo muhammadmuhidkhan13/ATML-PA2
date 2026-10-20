@@ -1,0 +1,44 @@
+TASK 3 CORRECTED REPORT DATA
+================================================================================
+
+CORRECTED STANDARD GRPO
+--------------------------------------------------------------------------------
+run: standard_corrected_20261018
+rollout_attempts: 23
+optimizer_updates: 20
+zero_valid_token_attempts: 3
+total_generated_tokens: 27129
+total_valid_policy_tokens: 15353
+mean_training_reward: 1.094575301460598
+mean_training_sampled_kl: 2.889828297933108e-05
+mean_training_entropy: 0.8750098672135136
+mean_training_response_length: 294.8804347826087
+max_gradient_norm: 0.968834400177002
+held_out_prompts: 200
+held_out_reward: 1.3968122863769532
+held_out_reward_sd: 1.8234550388888198
+held_out_sampled_kl: 0.00011275630769672409
+held_out_entropy: 0.8250095903027493
+held_out_mean_length: 304.14
+held_out_length_sd: 253.29824397338407
+held_out_eos_rate: 0.92
+held_out_truncation_rate: 0.08
+
+NORMALIZATION COMPARISON
+--------------------------------------------------------------------------------
+     condition loss_type  rollout_attempts  optimizer_updates  zero_valid_token_attempts  train_mean_reward  train_mean_group_reward_std  train_informative_group_rate  train_sampled_kl  train_entropy  train_mean_gradient_norm  train_max_gradient_norm  train_mean_response_length  train_truncation_rate  train_wall_clock_seconds  train_peak_vram_gib  heldout_reward  heldout_reward_std  heldout_sampled_kl  heldout_entropy  heldout_mean_response_length  heldout_response_length_std  heldout_response_length_iqr  heldout_eos_rate  heldout_truncation_rate
+canonical_grpo      grpo                 8                  7                          1           1.161171                     0.916999                           1.0          0.000019       0.733703                  0.308367                 0.965416                   292.90625                 0.1875                460.591334             5.667913        1.428285            1.663632            0.000096         0.851810                       286.075                   246.635661                       416.25              0.93                     0.07
+       dr_grpo   dr_grpo                 8                  8                          0           1.108734                     0.974343                           1.0         -0.000001       0.785195                  0.090778                 0.103023                   275.53125                 0.2500                435.734142             5.695290        1.290009            1.881194            0.000081         0.841343                       304.265                   249.106352                       423.00              0.91                     0.09
+
+GROUP-SIZE COMPARISON
+--------------------------------------------------------------------------------
+ k difficulty  num_groups  num_prompts  total_generations  mean_reward  mean_group_reward_std  std_group_reward_std  informative_group_rate  uninformative_group_fraction  mean_within_group_advantage_variance  pooled_advantage_variance  mean_absolute_advantage  mean_completion_tokens  mean_truncation_rate  mean_terminated_with_eos_rate
+ 2        all          96           24                192     1.611938               0.384567              0.434676                0.937500                      0.062500                              0.937481                   0.937481                 0.937491              396.177083              0.151042                       0.848958
+ 2       hard          48           12                 96     0.576660               0.528330              0.543109                0.895833                      0.104167                              0.895826                   0.895826                 0.895830              406.562500              0.260417                       0.739583
+ 2       easy          48           12                 96     2.647217               0.240804              0.203919                0.979167                      0.020833                              0.979136                   0.979136                 0.979152              385.791667              0.041667                       0.958333
+ 4        all          48           24                192     1.611938               0.541004              0.418378                0.958333                      0.041667                              0.958328                   0.958328                 0.830716              396.177083              0.151042                       0.848958
+ 4       hard          24           12                 96     0.576660               0.711506              0.501581                0.916667                      0.083333                              0.916663                   0.916663                 0.790752              406.562500              0.260417                       0.739583
+ 4       easy          24           12                 96     2.647217               0.370502              0.200887                1.000000                      0.000000                              0.999992                   0.999992                 0.870680              385.791667              0.041667                       0.958333
+ 8        all          24           24                192     1.611938               0.619054              0.420317                0.958333                      0.041667                              0.958329                   0.958329                 0.793928              396.177083              0.151042                       0.848958
+ 8       hard          12           12                 96     0.576660               0.800249              0.461330                0.916667                      0.083333                              0.916664                   0.916664                 0.774960              406.562500              0.260417                       0.739583
+ 8       easy          12           12                 96     2.647217               0.437860              0.273579                1.000000                      0.000000                              0.999994                   0.999994                 0.812896              385.791667              0.041667                       0.958333

@@ -1,0 +1,30 @@
+{
+  "reasoning_sensitivity": {
+    "comparison": "clean_correct minus corrupt_reasoning_correct_final",
+    "exact_reward_gap": 0.0,
+    "ai_group_reward_gap": 0.0,
+    "ai_clean_better_rate": 0.0,
+    "interpretation": "The final answer is held correct while reasoning is corrupted."
+  },
+  "outcome_sensitivity": {
+    "comparison": "clean_correct minus good_reasoning_wrong_final",
+    "exact_reward_gap": 1.0,
+    "ai_group_reward_gap": 0.025000000000000022,
+    "ai_clean_better_rate": 0.0,
+    "interpretation": "Reasoning is mostly preserved while the designated final answer is made wrong."
+  },
+  "persuasive_filler_sensitivity": {
+    "comparison": "clean_correct minus persuasive_filler_correct",
+    "exact_reward_gap": 0.0,
+    "ai_group_reward_gap": -0.08750000000000002,
+    "ai_perturbation_better_rate": 0.25,
+    "interpretation": "Correctness is held fixed while persuasive but unnecessary text is added."
+  },
+  "gold_distractor_resistance": {
+    "comparison": "clean_correct minus gold_distractor_wrong_final",
+    "exact_reward_gap": 1.0,
+    "ai_group_reward_gap": 0.0625,
+    "ai_clean_better_rate": 0.25,
+    "interpretation": "The correct number is mentioned as a distractor, but the designated final answer is wrong."
+  }
+}

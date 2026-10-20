@@ -1,0 +1,4 @@
+clip_epsilon,run_name,fork_updates,held_out_reward,held_out_reward_std,held_out_sampled_kl,held_out_entropy,held_out_mean_length,held_out_truncation_rate,held_out_eos_rate,max_gradient_norm,mean_gradient_norm,train_summary,evaluation_metrics
+0.05,clip_0p05,8,1.5856676864624024,1.4518336602177437,1.8159318270172895e-05,0.8308954176418666,309.945,0.1,0.9,1.5749697089195251,0.5254006003960967,results\task2_ppo\clip_0p05_train_summary.json,results\task2_ppo\clip_0p05_eval_metrics.json
+0.2,clip_0p2,8,1.6096692085266113,1.4085099913400798,9.434114367216345e-06,0.8381862522395178,311.21,0.08,0.92,1.6545087695121765,0.5286111887544394,results\task2_ppo\clip_0p2_train_summary.json,results\task2_ppo\clip_0p2_eval_metrics.json
+0.5,clip_0p5,8,1.5081197261810302,1.4253801108655983,-9.41005526159733e-06,0.8348635642115068,302.85,0.08,0.92,0.9788122177124023,0.3847173359245062,results\task2_ppo\clip_0p5_train_summary.json,results\task2_ppo\clip_0p5_eval_metrics.json

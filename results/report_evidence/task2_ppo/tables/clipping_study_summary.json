@@ -1,0 +1,61 @@
+{
+  "study": "ppo_clipping",
+  "status": "complete",
+  "epsilons": [
+    0.05,
+    0.2,
+    0.5
+  ],
+  "num_conditions": 3,
+  "conditions": [
+    {
+      "clip_epsilon": 0.05,
+      "run_name": "clip_0p05",
+      "fork_updates": 8,
+      "held_out_reward": 1.5856676864624024,
+      "held_out_reward_std": 1.4518336602177437,
+      "held_out_sampled_kl": 1.8159318270172895e-05,
+      "held_out_entropy": 0.8308954176418666,
+      "held_out_mean_length": 309.945,
+      "held_out_truncation_rate": 0.1,
+      "held_out_eos_rate": 0.9,
+      "max_gradient_norm": 1.5749697089195251,
+      "mean_gradient_norm": 0.5254006003960967,
+      "train_summary": "results\\task2_ppo\\clip_0p05_train_summary.json",
+      "evaluation_metrics": "results\\task2_ppo\\clip_0p05_eval_metrics.json"
+    },
+    {
+      "clip_epsilon": 0.2,
+      "run_name": "clip_0p2",
+      "fork_updates": 8,
+      "held_out_reward": 1.6096692085266113,
+      "held_out_reward_std": 1.4085099913400798,
+      "held_out_sampled_kl": 9.434114367216345e-06,
+      "held_out_entropy": 0.8381862522395178,
+      "held_out_mean_length": 311.21,
+      "held_out_truncation_rate": 0.08,
+      "held_out_eos_rate": 0.92,
+      "max_gradient_norm": 1.6545087695121765,
+      "mean_gradient_norm": 0.5286111887544394,
+      "train_summary": "results\\task2_ppo\\clip_0p2_train_summary.json",
+      "evaluation_metrics": "results\\task2_ppo\\clip_0p2_eval_metrics.json"
+    },
+    {
+      "clip_epsilon": 0.5,
+      "run_name": "clip_0p5",
+      "fork_updates": 8,
+      "held_out_reward": 1.5081197261810302,
+      "held_out_reward_std": 1.4253801108655983,
+      "held_out_sampled_kl": -9.41005526159733e-06,
+      "held_out_entropy": 0.8348635642115068,
+      "held_out_mean_length": 302.85,
+      "held_out_truncation_rate": 0.08,
+      "held_out_eos_rate": 0.92,
+      "max_gradient_norm": 0.9788122177124023,
+      "mean_gradient_norm": 0.3847173359245062,
+      "train_summary": "results\\task2_ppo\\clip_0p5_train_summary.json",
+      "evaluation_metrics": "results\\task2_ppo\\clip_0p5_eval_metrics.json"
+    }
+  ],
+  "comparison_csv": "results\\task2_ppo\\clipping_study_comparison.csv"
+}

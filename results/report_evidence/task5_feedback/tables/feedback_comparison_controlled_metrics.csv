@@ -1,0 +1,6 @@
+variant_type,num_responses,exact_reward_mean,expected_exact_reward_mean,expected_match_rate,designated_answer_rate,ai_group_reward_mean,ai_group_reward_std,mean_ai_wins,mean_ai_ties,mean_ai_losses
+clean_correct,20,1.0,1.0,1.0,1.0,0.5,0.06846531968814576,0.25,3.5,0.25
+corrupt_reasoning_correct_final,20,1.0,1.0,1.0,1.0,0.5,0.07905694150420949,0.2,3.6,0.2
+good_reasoning_wrong_final,20,0.0,0.0,1.0,1.0,0.475,0.049999999999999996,0.0,3.8,0.2
+persuasive_filler_correct,20,1.0,1.0,1.0,1.0,0.5875,0.13169567191065923,0.8,3.1,0.1
+gold_distractor_wrong_final,20,0.0,0.0,1.0,1.0,0.4375,0.12183492931011204,0.1,3.3,0.6

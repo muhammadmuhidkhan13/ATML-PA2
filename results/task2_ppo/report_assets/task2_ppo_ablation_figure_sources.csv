@@ -1,0 +1,16 @@
+panel,condition,source_file,metric,fields
+(a),epsilon=0.05,results\task2_ppo\clip_0p05_train_log.jsonl,policy gradient norm,gradient_norm
+(a),epsilon=0.20,results\task2_ppo\clip_0p2_train_log.jsonl,policy gradient norm,gradient_norm
+(a),epsilon=0.50,results\task2_ppo\clip_0p5_train_log.jsonl,policy gradient norm,gradient_norm
+(b),beta_KL=0.00,results\task2_ppo\kl_0_train_log.jsonl,learned_reward,learned_reward
+(c),beta_KL=0.00,results\task2_ppo\kl_0_train_log.jsonl,sampled_kl,sampled_kl
+(d),beta_KL=0.00,results\task2_ppo\kl_0_train_log.jsonl,entropy,entropy
+(e),beta_KL=0.00,results\task2_ppo\kl_0_train_log.jsonl,response_length,response_length
+(b),beta_KL=0.10,results\task2_ppo\kl_0p1_train_log.jsonl,learned_reward,learned_reward
+(c),beta_KL=0.10,results\task2_ppo\kl_0p1_train_log.jsonl,sampled_kl,sampled_kl
+(d),beta_KL=0.10,results\task2_ppo\kl_0p1_train_log.jsonl,entropy,entropy
+(e),beta_KL=0.10,results\task2_ppo\kl_0p1_train_log.jsonl,response_length,response_length
+(b),beta_KL=0.20,results\task2_ppo\kl_0p2_train_log.jsonl,learned_reward,learned_reward
+(c),beta_KL=0.20,results\task2_ppo\kl_0p2_train_log.jsonl,sampled_kl,sampled_kl
+(d),beta_KL=0.20,results\task2_ppo\kl_0p2_train_log.jsonl,entropy,entropy
+(e),beta_KL=0.20,results\task2_ppo\kl_0p2_train_log.jsonl,response_length,response_length
